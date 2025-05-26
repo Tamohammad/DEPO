@@ -24,25 +24,25 @@ export default function Header() {
   return (
     <>
       <div className="min-h-full">
-        <Disclosure as="nav" className="bg-gray-800">
+        <Disclosure as="nav" className="bg-gray-800 bg-gradient-to-l from-blue-700 to-blue-900 text-white shadow-md fixed top-0 right-0 left-0 z-50">
           {({ open }) => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="flex justify-center items-center gap-2">
-                        <img
-                          className="h-8 w-8"
-                          src={require("../assets/Logo.jpeg")}
-                          alt="Inventory Management System"
-                        />
-                        <h1 className="font-bold text-white italic text-xl">
-                          سیستم گودام 
-                        </h1>
-                      </div>
-                    </div>
+                  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 items-center justify-between">
+                    <div className="flex justify-center items-center gap-2">
+                          <img
+                            className="h-10 w-10 rounded-full"
+                            src={require("../assets/Logo.jpeg")}
+                            alt="Inventory Management System"
+                          />
+                          <div className="flex items-center gap-4">
+                        <h1 className="text-2xl font-bold font-vazir">سیستم مدیریت دانشگاه</h1>
+                        </div>
+                    </div>
                   </div>
+                </div>
                   <div className="hidden md:block">
                     <div className="ml-4 flex items-center md:ml-6">
                       {/* <button

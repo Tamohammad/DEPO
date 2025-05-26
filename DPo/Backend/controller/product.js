@@ -1,16 +1,16 @@
-const Product = require("../models/Product");
+const Product = require("../models/product");
 const Purchase = require("../models/purchase");
 const Sales = require("../models/sales");
 
 // Add Post
 const addProduct = (req, res) => {
-  console.log("req: ", req.body.userId);
   const addProduct = new Product({
     userID: req.body.userId,
-    name: req.body.name,
-    manufacturer: req.body.manufacturer,
-    stock: 0,
     description: req.body.description,
+    price: req.body.price,
+    unit: req.body.unit,
+    count: req.body.quantity, 
+    stock: 0,
   });
 
   addProduct
