@@ -61,7 +61,7 @@ function PurchaseDetails() {
         <div className="overflow-x-auto rounded-lg border bg-white border-gray-200 ">
           <div className="flex justify-between pt-5 pb-3 px-3">
             <div className="flex gap-4 justify-center items-center ">
-              <span className="font-bold">Purchase Details</span>
+              <span className="font-bold">جزیات خرید</span>
             </div>
             <div className="flex gap-4">
               <button
@@ -69,7 +69,7 @@ function PurchaseDetails() {
                 onClick={addSaleModalSetting}
               >
                 {/* <Link to="/inventory/add-product">Add Product</Link> */}
-                Add Purchase
+                افزودن خرید
               </button>
             </div>
           </div>
@@ -77,13 +77,13 @@ function PurchaseDetails() {
             <thead>
               <tr>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Product Name
+                  نام محصول
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Quantity Purchased
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Purchase Date
+                  تاریخ خرید
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   Total Purchase Amount

@@ -89,7 +89,7 @@ export default function AddSale({
                         as="h3"
                         className="text-lg  py-4 font-semibold leading-6 text-gray-900 "
                       >
-                        Add Sale
+                        افزودن
                       </Dialog.Title>
                       <form action="#">
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
@@ -98,7 +98,7 @@ export default function AddSale({
                               htmlFor="productID"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Product Name
+                              نام محصول
                             </label>
                             <select
                               id="productID"
@@ -108,7 +108,7 @@ export default function AddSale({
                                 handleInputChange(e.target.name, e.target.value)
                               }
                             >
-                              <option selected="">Select Products</option>
+                              <option selected="">انتخاب محصول</option>
                               {products.map((element, index) => {
                                 return (
                                   <option key={element._id} value={element._id}>
@@ -123,7 +123,7 @@ export default function AddSale({
                               htmlFor="stockSold"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Stock Sold
+                              مقدار
                             </label>
                             <input
                               type="number"
@@ -143,7 +143,7 @@ export default function AddSale({
                               htmlFor="storeID"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Store Name
+                               واحد
                             </label>
                             <select
                               id="storeID"
@@ -153,7 +153,7 @@ export default function AddSale({
                                 handleInputChange(e.target.name, e.target.value)
                               }
                             >
-                              <option selected="">Select Store</option>
+                              <option selected="">واحد</option>
                               {stores.map((element, index) => {
                                 return (
                                   <option key={element._id} value={element._id}>
@@ -168,7 +168,25 @@ export default function AddSale({
                               htmlFor="totalSaleAmount"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                             >
-                              Total Sale Amount
+                             قیمت فی واحد
+                            </label>
+                            <input
+                              type="number"
+                              name="SaleAmount"
+                              id="price"
+                              value={sale.SaleAmount}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="$299"
+                            />
+                              
+                             <label
+                              htmlFor="totalSaleAmount"
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                             قیمت مجموعی 
                             </label>
                             <input
                               type="number"
@@ -192,9 +210,9 @@ export default function AddSale({
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               htmlFor="salesDate"
                             >
-                              Sales Date
+                              تاریخ
                             </label>
-                            <input
+                            {/* <input
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                               type="date"
                               id="saleDate"
@@ -203,7 +221,7 @@ export default function AddSale({
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                            />
+                            /> */}
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
@@ -242,7 +260,7 @@ export default function AddSale({
                     className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                     onClick={addSale}
                   >
-                    Add Sale
+                    افزودن توزیع
                   </button>
                   <button
                     type="button"
@@ -250,7 +268,7 @@ export default function AddSale({
                     onClick={() => addSaleModalSetting()}
                     ref={cancelButtonRef}
                   >
-                    Cancel
+                    لغو
                   </button>
                 </div>
               </Dialog.Panel>

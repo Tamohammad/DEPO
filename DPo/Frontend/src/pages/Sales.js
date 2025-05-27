@@ -72,7 +72,7 @@ function Sales() {
         <div className="overflow-x-auto rounded-lg border bg-white border-gray-200 ">
           <div className="flex justify-between pt-5 pb-3 px-3">
             <div className="flex gap-4 justify-center items-center ">
-              <span className="font-bold">Sales</span>
+              <span className="font-bold"> توزیع اجناس</span>
             </div>
             <div className="flex gap-4">
               <button
@@ -80,7 +80,7 @@ function Sales() {
                 onClick={addSaleModalSetting}
               >
                 {/* <Link to="/inventory/add-product">Add Product</Link> */}
-                Add Sales
+                افزودن 
               </button>
             </div>
           </div>
@@ -88,19 +88,23 @@ function Sales() {
             <thead>
               <tr>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Product Name
+                  نام محصول
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Store Name
+                  مقدار
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Stock Sold
+                  واحد
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Sales Date
+                  تاریخ
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  Total Sale Amount
+                  قیمت فی واحد
+                </th>
+
+                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                  قیمت مجموع
                 </th>
               </tr>
             </thead>
