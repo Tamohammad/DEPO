@@ -25,10 +25,10 @@ function Inventory() {
   }, [updatePage]);
 
   /*/////////////////////////////////////////////////////////////////////////*/
-  useEffect(() => {
-    fetchCategoryProducts(selectedCategory); // ✅ نمایش محصولات کتگوری انتخاب‌شده
-    fetchSalesData();
-  }, [updatePage, selectedCategory]);
+  // useEffect(() => {
+  //   fetchCategoryProducts(selectedCategory); // ✅ نمایش محصولات کتگوری انتخاب‌شده
+  //   fetchSalesData();
+  // }, [updatePage, selectedCategory]);
 /*/////////////////////////////////////////////////////////////////////////*/  
 
   // Fetching Data of All Products
@@ -43,15 +43,15 @@ function Inventory() {
     ///////////////////////////////////////////////////////////////////////////////////
     
   
-    const fetchCategoryProducts = (category) => {
-      setSelectedCategory(category); // ست کردن کتگوری در UI
-      fetch(`http://localhost:4000/api/product/category/${category}/${authContext.user}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setAllProducts(data);
-        })
-        .catch((err) => console.log(err));
-    };
+    // const fetchCategoryProducts = (category) => {
+    //   setSelectedCategory(category); // ست کردن کتگوری در UI
+    //   fetch(`http://localhost:4000/api/product/category/${category}/${authContext.user}`)
+    //     .then((res) => res.json())
+    //     .then((data) => {
+    //       setAllProducts(data);
+    //     })
+    //     .catch((err) => console.log(err));
+    // };
   
     /////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -117,7 +117,7 @@ function Inventory() {
           <span className="font-semibold px-4">فهرست مجموعی</span>
           <div className=" flex flex-col md:flex-row justify-center items-center  ">
 {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////             */}
-          <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
+          {/* <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
             
             <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
               انتخاب کتگوری:
@@ -132,7 +132,7 @@ function Inventory() {
               <option value="C">کتگوری C</option>
               <option value="D">کتگوری D</option>
             </select>
-          </div>
+          </div> */}
 
 {/* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////             */}
             <div className="flex flex-col gap-3 p-10   w-full  md:w-3/12 sm:border-y-2  md:border-x-2 md:border-y-0">
