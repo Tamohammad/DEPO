@@ -118,6 +118,7 @@ function Inventory() {
           <div className=" flex flex-col md:flex-row justify-center items-center  ">
 {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////             */}
           <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
+            
             <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
               انتخاب کتگوری:
             </label>
