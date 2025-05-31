@@ -118,7 +118,7 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
                               name="unit"
                               value={product.unit}
                               onChange={(e) => handleInputChange(e.target.name, e.target.value)}
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
                               <option value="">انتخاب واحد</option>
                               <option value="کیلوگرام">کیلوگرام</option>
