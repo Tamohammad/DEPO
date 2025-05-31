@@ -2,6 +2,12 @@ import { Fragment, useContext, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import AuthContext from "../AuthContext";
+/*/////////////////////////////////////////////////////////////*/
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////*/
+
 
 export default function AddProduct({ addProductModalSetting, handlePageUpdate }) {
   const authContext = useContext(AuthContext);
@@ -12,10 +18,10 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
     unit: "",
     priceperunit: "",
     totleprice:"",
-    check:"",
+    category: "",
     
   });
-
+  
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
 
@@ -160,16 +166,26 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
                           </div>
                           <div className="text-right">
                             <label htmlFor="quantity" className="block mb-1 text-sm font-medium text-gray-900">
-                                 ملاحظات
+                                 کتگوری
                             </label>
-                            <input
-                              type="checkbox"
-                              name="check"
-                              id="check"
-                              checked={product.check}
-                              onChange={(e) => handleInputChange(e.target.name, e.target.checked)}
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                            />
+                            <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
+            
+                              <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
+                                انتخاب کتگوری:
+                              </label>
+                              <select
+                                name="category"
+                                value={product.category}
+                                onChange={(e) => handleInputChange(e.target.name, e.target.value)}
+                                className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
+                              >
+                                <option value="">انتخاب کتگوری</option>
+                                <option value="A">کتگوری A</option>
+                                <option value="B">کتگوری B</option>
+                                <option value="C">کتگوری C</option>
+                                <option value="D">کتگوری D</option>
+                              </select>
+                            </div>
                           </div>
                         </div>
                       </form>

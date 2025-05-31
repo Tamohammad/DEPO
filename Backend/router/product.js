@@ -10,7 +10,7 @@ app.get("/get/:userId", product.getAllProducts);
 /*////////////////////////////////////////////////////////////////////////*/
 
 // Get Products by Category and UserId
-app.get("/category/:category/:userId", product.getProductsByCategory);
+// app.get("/category/:category/:userId", product.getProductsByCategory);
 
 /*////////////////////////////////////////////////////////////////////////*/
 

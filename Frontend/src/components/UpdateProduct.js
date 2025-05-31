@@ -171,19 +171,22 @@ export default function UpdateProduct({
                               placeholder="قیمت مجموعی را وارد..."
                             />
                           </div>
-                          <div className="text-right">
-                            <label htmlFor="quantity" className="block mb-1 text-sm font-medium text-gray-900">
-                                 ملاحظات
+                          <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
+                            <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
+                              انتخاب کتگوری:
                             </label>
-                            <input
-                              type="checkbox"
-                              name="check"
-                              id="check"
-                              checked={product.check}
-                              onChange={(e) => handleInputChange(e.target.name, e.target.checked)}
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                            />
-
+                            <select
+                              name="category"
+                              value={product.category}
+                              onChange={(e) => handleInputChange(e.target.name, e.target.value)}
+                              className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
+                            >
+                              <option value="">انتخاب کتگوری</option>
+                              <option value="A">کتگوری A</option>
+                              <option value="B">کتگوری B</option>
+                              <option value="C">کتگوری C</option>
+                              <option value="D">کتگوری D</option>
+                            </select>
                           </div>
                           </div>
                         </form>

@@ -15,7 +15,7 @@ const addProduct = (req, res) => {
     unit: req.body.unit,
     priceperunit: req.body.priceperunit,
     totleprice: req.body.totleprice,
-    check:req.body.check,
+    category:req.body.category,
   });
 
   newProduct
@@ -63,7 +63,7 @@ const updateSelectedProduct = async (req, res) => {
         unit: req.body.unit,
         priceperunit: req.body.priceperunit,
         totleprice: req.body.totleprice,
-        check: req.body.check, 
+        category: req.body.category, 
       },
       { new: true }
     );
@@ -76,8 +76,6 @@ const updateSelectedProduct = async (req, res) => {
 };
 
 /*/////////////////////////////////////////////////////////////////*/
-
-const Product = require("../models/product"); // مطمئن شو مدل ایمپورت شده
 
 exports.getProductsByCategory = async (req, res) => {
   const { category, userId } = req.params;

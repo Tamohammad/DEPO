@@ -29,7 +29,7 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    check: {
+    category: {
        type: String,
         required: true,
       }
