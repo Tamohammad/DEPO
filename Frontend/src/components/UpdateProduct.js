@@ -6,7 +6,7 @@ export default function UpdateProduct({
   updateProductData,
   updateModalSetting,
 }) {
-  const { _id, description, count, unit, priceperunit, totleprice, check} = updateProductData;
+  const { _id, description, count, unit, priceperunit, totleprice, category} = updateProductData;
   const [product, setProduct] = useState({
     productID: _id,
     description: description,
@@ -14,7 +14,7 @@ export default function UpdateProduct({
     unit: unit,
     priceperunit: priceperunit,
     totleprice:totleprice,
-    check: check,
+    category: category,
   });
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);

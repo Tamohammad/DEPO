@@ -26,8 +26,21 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
   const cancelButtonRef = useRef(null);
 
   const handleInputChange = (key, value) => {
-    setProduct({ ...product, [key]: value });
+    const updatedProduct = {
+      ...product,
+      [key]: value,
+    };
+  
+    const count = parseFloat(updatedProduct.count);
+    const price = parseFloat(updatedProduct.priceperunit);
+  
+    if (!isNaN(count) && !isNaN(price)) {
+      updatedProduct.totleprice = count * price;
+    }
+  
+    setProduct(updatedProduct);
   };
+  
 
   const addProduct = () => {
     fetch("http://localhost:4000/api/product/add", {
@@ -164,10 +177,8 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
                               placeholder="قیمت مجموعی را وارد..."
                             />
                           </div>
-                          <div className="text-right">
-                            <label htmlFor="quantity" className="block mb-1 text-sm font-medium text-gray-900">
-                                 کتگوری
-                            </label>
+                         
+  
                             <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
             
                               <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
@@ -177,7 +188,7 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
                                 name="category"
                                 value={product.category}
                                 onChange={(e) => handleInputChange(e.target.name, e.target.value)}
-                                className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
+                                className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
                               >
                                 <option value="">انتخاب کتگوری</option>
                                 <option value="A">کتگوری A</option>
@@ -186,7 +197,6 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
                                 <option value="D">کتگوری D</option>
                               </select>
                             </div>
-                          </div>
                         </div>
                       </form>
                     </div>

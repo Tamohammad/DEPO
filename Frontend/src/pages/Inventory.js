@@ -3,6 +3,8 @@ import AddProduct from "../components/AddProduct";
 import UpdateProduct from "../components/UpdateProduct";
 import AuthContext from "../AuthContext";
 
+
+
 function Inventory() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -11,6 +13,8 @@ function Inventory() {
   const [searchTerm, setSearchTerm] = useState();
   const [updatePage, setUpdatePage] = useState(true);
   const [stores, setAllStores] = useState([]);
+  const [searchWarning, setSearchWarning] = useState('');
+
   const [selectedCategory, setSelectedCategory] = useState("A");
   
 
@@ -20,19 +24,34 @@ function Inventory() {
   console.log(authContext);
   console.log('====================================');
 
-  useEffect(() => {
-    fetchProductsData();
-    fetchSalesData();
-  }, [updatePage]);
+  
+  
 
-  /*/////////////////////////////////////////////////////////////////////////*/
+  {/*/////////////////////////////////////////////////////////////////////////*/}
   useEffect(() => {
     fetchCategoryProducts(selectedCategory); // ✅ نمایش محصولات کتگوری انتخاب‌شده
     fetchSalesData();
   }, [updatePage, selectedCategory]);
-/*/////////////////////////////////////////////////////////////////////////*/  
+{/*/////////////////////////////////////////////////////////////////////////*/ } 
 
-  // Fetching Data of All Products
+  {/* Fetching Data of All Products*/}
+  const fetchSearchData = () => {
+    fetch(`http://localhost:4000/api/product/search?searchTerm=${searchTerm}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.length === 0) {
+          setSearchWarning('متأسفانه جنس با این مشخصات یافت نشد.');
+          setAllProducts([]); // خالی کردن لیست محصولات
+        } else {
+          setAllProducts(data);
+          setSearchWarning('');
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setSearchWarning('خطا در دریافت اطلاعات');
+      });
+  };
   const fetchProductsData = () => {
     fetch(`http://localhost:4000/api/product/get/${authContext.user}`)
       .then((response) => response.json())
@@ -41,7 +60,19 @@ function Inventory() {
       })
       .catch((err) => console.log(err));
   };
-    ///////////////////////////////////////////////////////////////////////////////////
+  
+  {  /* Handle Search Term*/}  
+  const handleSearchTerm = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  
+
+  useEffect(() => {
+    fetchProductsData();
+    fetchSalesData();
+  }, [updatePage]);
+   {/* ///////////////////////////////////////////////////////////////////////////////////*/}
     
     const fetchCategoryProducts = (category) => {
       setSelectedCategory(category); // ست کردن کتگوری در UI
@@ -54,20 +85,11 @@ function Inventory() {
     };
     
   
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    {/*/////////////////////////////////////////////////////////////////////////////*/}
   
 
-  // Fetching Data of Search Products
-  const fetchSearchData = () => {
-    fetch(`http://localhost:4000/api/product/search?searchTerm=${searchTerm}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAllProducts(data);
-      })
-      .catch((err) => console.log(err));
-  };
-
-  // Fetching all stores data
+ 
+  {/* Fetching all stores data*/}
   const fetchSalesData = () => {
     fetch(`http://localhost:4000/api/store/get/${authContext.user}`)
       .then((response) => response.json())
@@ -76,12 +98,12 @@ function Inventory() {
       });
   };
 
-  // Modal for Product ADD
+  {/* Modal for Product ADD*/}
   const addProductModalSetting = () => {
     setShowProductModal(!showProductModal);
   };
 
-  // Modal for Product UPDATE
+  {/*Modal for Product UPDATE*/}
   const updateProductModalSetting = (selectedProductData) => {
     console.log("Clicked: edit");
     setUpdateProduct(selectedProductData);
@@ -89,7 +111,7 @@ function Inventory() {
   };
 
 
-  // Delete item
+  {/* Delete item*/}
   const deleteItem = (id) => {
     console.log("Product ID: ", id);
     console.log(`http://localhost:4000/api/product/delete/${id}`);
@@ -100,16 +122,12 @@ function Inventory() {
       });
   };
 
-  // Handle Page Update
+{/* Handle Page Update*/}
   const handlePageUpdate = () => {
     setUpdatePage(!updatePage);
   };
 
-  // Handle Search Term
-  const handleSearchTerm = (e) => {
-    setSearchTerm(e.target.value);
-    fetchSearchData();
-  };
+
 
   return (
     <div className="col-span-12 lg:col-span-10  flex justify-center">
@@ -118,7 +136,8 @@ function Inventory() {
           <span className="font-semibold px-4">فهرست مجموعی</span>
           <div className=" flex flex-col md:flex-row justify-center items-center  ">
 {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////             */}
-         ///// Add  catagory page
+         
+         {/* Add  catagory page */}
               <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
                 
                 <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
@@ -127,7 +146,7 @@ function Inventory() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => fetchCategoryProducts(e.target.value)}
-                  className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
+                  className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
                 >
                   <option value="A">کتگوری A</option>
                   <option value="B">کتگوری B</option>
@@ -186,22 +205,30 @@ function Inventory() {
         {/* Table  */}
         <div className="overflow-x-auto rounded-lg border bg-white border-gray-200 ">
           <div className="flex justify-between pt-5 pb-3 px-3">
-            <div className="flex gap-4 justify-center items-center ">
-            <h3 className="font-bold text-gray-800 text-lg">لیست اجناس</h3>              <div className="flex justify-center items-center px-2 border-2 rounded-md ">
-                <img
-                  alt="search-icon"
-                  className="w-5 h-5"
-                  src={require("../assets/search-icon.png")}
-                />
-                <input
-                  type="text"
-                  placeholder="جستجو کنید"
-                  value={searchTerm}
-                  onChange={handleSearchTerm}
-                  className="border-none outline-none px-2 text-sm"
-                />
-              </div>
-            </div>
+          <div className="flex justify-center items-center px-2 border-2 rounded-md">
+            <img
+              alt="search-icon"
+              className="w-5 h-5 hover:cursor-pointer"
+              src={require("../assets/search-icon.png")}
+              onClick={fetchSearchData}
+            />
+            <input
+              type="text"
+              placeholder="جستجو کنید..."
+              value={searchTerm}
+              onChange={handleSearchTerm}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") fetchSearchData();
+              }}
+              className="flex-1 bg-transparent outline-none px-2 text-sm text-gray-700 placeholder-gray-400"
+            />
+          </div>
+          {/* نمایش پیام هشدار */}
+          {searchWarning && (
+            <p className="text-red-500 mt-1 text-sm">{searchWarning}</p>
+          )}
+
+              
             <div className="flex gap-4">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded text-sm"
@@ -257,20 +284,42 @@ function Inventory() {
                     <td className="px-4 py-2 border">
                       {element.category}
                     </td>
-
-                    <td className="px-4 py-2 border">
-                      <span
-                        className="text-green-700 cursor-pointer"
+                    <td className="px-4 py-2 border flex gap-3 justify-center items-center">
+                      {/* Edit Button */}
+                      <button
                         onClick={() => updateProductModalSetting(element)}
+                        className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition duration-200"
+                        title="ویرایش"
                       >
-                        Edit{" "}
-                      </span>
-                      <span
-                        className="text-red-600 px-2 cursor-pointer"
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-5 h-5 text-blue-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 17h2M12 12v-6m6 6v6a2 2 0 01-2 2H8a2 2 0 01-2-2v-6a2 2 0 012-2h1" />
+                        </svg>
+                      </button>
+
+                      {/* Delete Button */}
+                      <button
                         onClick={() => deleteItem(element._id)}
+                        className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition duration-200"
+                        title="حذف"
                       >
-                        Delete
-                      </span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-5 h-5 text-red-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </td>
 
                   </tr>

@@ -100,7 +100,7 @@ exports.getProductsByCategory = async (req, res) => {
 const searchProduct = async (req, res) => {
   const searchTerm = req.query.searchTerm;
   const products = await Product.find({
-    name: { $regex: searchTerm, $options: "i" },
+    description: { $regex: searchTerm, $options: "i" },
   });
   res.json(products);
 };
