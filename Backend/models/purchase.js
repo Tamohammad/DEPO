@@ -7,20 +7,31 @@ const PurchaseSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
-    ProductID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "product",
-      required: true,
-    },
-    QuantityPurchased: {
-      type: Number,
-      required: true,
-    },
-    PurchaseDate: {
+   productID: {
+  type: String, 
+  required: true,
+},
+    category: {
       type: String,
       required: true,
     },
-    TotalPurchaseAmount: {
+    quantityPurchased: {
+      type: Number,
+      required: true,
+    },
+    pricePerUnit: {
+      type: Number,
+      required: true,
+    },
+    unit: {
+      type: String,
+      required: true,
+    },
+    purchaseDate: {
+      type: String,
+      required: true,
+    },
+    totalPurchaseAmount: {
       type: Number,
       required: true,
     },
