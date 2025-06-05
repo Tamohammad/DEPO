@@ -7,6 +7,11 @@ app.post("/add", purchase.addPurchase);
 
 // Get All Purchase Data
 app.get("/get/:userID", purchase.getPurchaseData);
+//router.delete('/purchase/delete/:id', purchaseController.deletePurchase);
+// فرض می‌کنیم در controller/purchase.js تابع deletePurchase وجود دارد که حذف را انجام می‌دهد
+
+app.delete("/delete/:id", purchase.deletePurchase);
+
 
 app.get("/get/:userID/totalpurchaseamount", purchase.getTotalPurchaseAmount);
 
