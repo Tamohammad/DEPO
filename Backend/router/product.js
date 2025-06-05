@@ -2,17 +2,13 @@ const express = require("express");
 const app = express();
 const product = require("../controller/product");
 
+
+
 // Add Product
 app.post("/add", product.addProduct);
 
 // Get All Products
 app.get("/get/:userId", product.getAllProducts);
-/*////////////////////////////////////////////////////////////////////////*/
-
-// Get Products by Category and UserId
-// app.get("/category/:category/:userId", product.getProductsByCategory);
-
-/*////////////////////////////////////////////////////////////////////////*/
 
 // Delete Selected Product Item
 app.get("/delete/:id", product.deleteSelectedProduct);

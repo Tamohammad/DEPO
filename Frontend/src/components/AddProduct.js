@@ -2,11 +2,6 @@ import { Fragment, useContext, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import AuthContext from "../AuthContext";
-/*/////////////////////////////////////////////////////////////*/
-
-
-
-/*/////////////////////////////////////////////////////////////////////////////*/
 
 
 export default function AddProduct({ addProductModalSetting, handlePageUpdate }) {
@@ -51,7 +46,7 @@ export default function AddProduct({ addProductModalSetting, handlePageUpdate })
       body: JSON.stringify(product),
     })
       .then(() => {
-        alert("محصول اضافه شد");
+        alert("جنس اضافه شد");
         handlePageUpdate();
         addProductModalSetting();
       })

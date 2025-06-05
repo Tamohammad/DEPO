@@ -1,6 +1,9 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { useEffect } from "react";
+
+
 
 export default function UpdateProduct({
   updateProductData,
@@ -16,6 +19,15 @@ export default function UpdateProduct({
     totleprice:totleprice,
     category: category,
   });
+
+  useEffect(() => {
+    const count = parseFloat(product.count) || 0;
+    const price = parseFloat(product.priceperunit) || 0;
+    const calculatedTotal = count * price;
+    setProduct(prev => ({ ...prev, totleprice: calculatedTotal }));
+  }, [product.count, product.priceperunit]);
+  
+
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
 
@@ -23,6 +35,7 @@ export default function UpdateProduct({
     console.log(key);
     setProduct({ ...product, [key]: value });
   };
+  
 
   const updateProduct = () => {
     fetch("http://localhost:4000/api/product/update", {
@@ -33,7 +46,7 @@ export default function UpdateProduct({
       body: JSON.stringify(product),
     })
       .then((result) => {
-        alert("Product Updated");
+        alert("جنس اپدیت شد");
         setOpen(false);
       })
       .catch((err) => console.log(err));

@@ -49,9 +49,7 @@ const deleteSelectedProduct = async (req, res) => {
     { ProductID: req.params.id }
   );
   res.json({ deleteProduct, deletePurchaseProduct, deleteSaleProduct });
-};
-
-// Update Selected Product
+}
 // Update Selected Product
 const updateSelectedProduct = async (req, res) => {
   try {
@@ -74,27 +72,6 @@ const updateSelectedProduct = async (req, res) => {
     res.status(402).send("Error");
   }
 };
-
-/*/////////////////////////////////////////////////////////////////*/
-
-exports.getProductsByCategory = async (req, res) => {
-  const { category, userId } = req.params;
-
-  try {
-    const products = await Product.find({
-      category: category,
-      createdBy: userId,
-    });
-
-    res.status(200).json(products);
-  } catch (error) {
-    console.error("خطا در دریافت محصولات بر اساس کتگوری:", error.message);
-    res.status(500).json({ message: "خطا در سرور هنگام دریافت محصولات." });
-  }
-};
-
-
-/*///////////////////////////////////////////////////////////////////*/
 
 // Search Products
 const searchProduct = async (req, res) => {
