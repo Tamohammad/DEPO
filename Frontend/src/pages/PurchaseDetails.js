@@ -110,6 +110,7 @@ function PurchaseDetails() {
           <div className="flex justify-between pt-5 pb-3 px-3">
             <div className="flex gap-4 justify-center items-center ">
               <span className="font-bold">جزئیات خرید</span>
+              
 
               {/* بخش جستجو */}
               <div className="flex justify-center items-center px-2 border-2 rounded-md ">

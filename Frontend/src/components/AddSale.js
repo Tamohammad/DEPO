@@ -1,6 +1,7 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import Sales from "../pages/Sales";
 
 export default function AddSale({
   addSaleModalSetting,
@@ -12,10 +13,14 @@ export default function AddSale({
   const [sale, setSale] = useState({
     userID: authContext.user,
     productID: "",
+    category: "",
     storeID: "",
     stockSold: "",
     saleDate: "",
+     SaleAmount: "",
     totalSaleAmount: "",
+     unit: "",
+    department: "",
   });
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
@@ -93,22 +98,53 @@ export default function AddSale({
                       </Dialog.Title>
                       <form action="#">
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
+
+
+                           {/* انتخاب کتگوری */}
+                          <div>
+                            <label
+                              htmlFor="category"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                            >
+                              کتگوری
+                            </label>
+                            <select
+                              id="category"
+                              name="category"
+                              value={sale.category}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
+                            >
+                              <option value="">انتخاب کتگوری</option>
+                              <option value="electronics">الکترونیک</option>
+                              <option value="stationery">لوازم تحریر</option>
+                              <option value="food">مواد غذایی</option>
+                              <option value="construction">ساختمانی</option>
+                            </select>
+                          </div>
+
+
+
+
+
+
                           <div>
                             <label
                               htmlFor="productID"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right" >
                               نام محصول
                             </label>
                             <select
                               id="productID"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full "
                               name="productID"
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
                             >
-                              <option selected="">انتخاب محصول</option>
+                              <option value="">انتخاب محصول</option>
                               {products.map((element, index) => {
                                 return (
                                   <option key={element._id} value={element._id}>
@@ -116,12 +152,15 @@ export default function AddSale({
                                   </option>
                                 );
                               })}
+                         
+
                             </select>
                           </div>
+
                           <div>
                             <label
                               htmlFor="stockSold"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right "
                             >
                               مقدار
                             </label>
@@ -133,40 +172,41 @@ export default function AddSale({
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 text-right"
                               placeholder="0 - 999"
                             />
                           </div>
 
-                          <div>
+                              <div>
                             <label
-                              htmlFor="storeID"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                              htmlFor="unit"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                               واحد
+                              واحد
                             </label>
                             <select
-                              id="storeID"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              name="storeID"
+                              id="unit"
+                              name="unit"
+                              value={sale.unit}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
-                              <option selected="">واحد</option>
-                              {stores.map((element, index) => {
-                                return (
-                                  <option key={element._id} value={element._id}>
-                                    {element.name}
-                                  </option>
-                                );
-                              })}
+                              <option value="" >انتخاب واحد</option>
+                              <option value="kg">کیلوگرام</option>
+                              <option value="liter">لیتر</option>
+                              <option value="piece">عدد</option>
+                              <option value="meter">متر</option>
+                              <option value="box">جعبه</option>
+                              <option value="pack">بسته</option>
                             </select>
                           </div>
+
                           <div>
                             <label
                               htmlFor="totalSaleAmount"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right"
                             >
                              قیمت فی واحد
                             </label>
@@ -178,13 +218,13 @@ export default function AddSale({
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="$299"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 text-right"
+                              placeholder="قیمت فی واحد"
                             />
                               
                              <label
                               htmlFor="totalSaleAmount"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right"
                             >
                              قیمت مجموعی 
                             </label>
@@ -196,10 +236,95 @@ export default function AddSale({
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              placeholder="$299"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500  text-right"
+                              placeholder="قیمت مجموعی"
                             />
                           </div>
+
+
+
+                            <div>
+                            <label
+                              htmlFor="unit"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                            >
+                              دیپارتمنت
+                            </label>
+                            <select
+                              id="department"
+                              name="department"
+                              value={sale.department}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"  >
+                          
+     <option value="">انتخاب کنید</option>
+
+    <optgroup label="پوهنځی انجنیری صنایع کیمیاوی">
+      <option value="technology_mawad_auzwi">تکنالوژی مواد عضوی</option>
+      <option value="technology_mawad_ghair_auzwi">تکنالوژی مواد غیر عضوی</option>
+      <option value="technology_mawad_ghazai">تکنالوژی مواد غذایی</option>
+      <option value="technology_process">تکنالوژی پروسس فلزات</option>
+    </optgroup>
+
+    <optgroup label="پوهنځی ساختمانی">
+      <option value="sunati_madani">ساختمان های صنعتی و مدنی</option>
+      <option value="muhandasi">مهندسی</option>
+      <option value="shahar_sazi">شهر سازی</option>
+       <option value="mudiriat">مدیریت و انجنیری ساختمان</option>
+        <option value="rasm_takhnic">رسم تخنیکی و هندسه ترسیمی</option>
+  
+    </optgroup>
+
+    <optgroup label="پوهنځی الکترومیخانیک">
+      <option value="auto_mikhanic">انجنیری اتومیخانیک</option>
+      <option value="tamin_barq">تامین برق موسسات صنعتی، شهرها و دهات</option>
+    </optgroup>
+
+     <optgroup label="پوهنځی کمپیوترساینس">
+      <option value="information_system">سیستم های معلوماتی </option>
+      <option value="Computer_Engineering">انجنیری کمپیوتر</option>
+      <option value="Network_Engineering ">انجنیری شبکه</option>
+    </optgroup>
+     <optgroup label="  پوهنځی جيولوجي ومعدن">
+      <option value="geaulogy_akshaf"> انجنیری جیولوجی و اکشاف معادن</option>
+      <option value="madin_naft_gaz"> انجنیری معادن نفت و گاز</option>
+      <option value="astikhrag"> انجنیری استخراج معادن مواد مفید جامد به طریقه برهنه</option>
+      <option value="astikhrag_zir_zamini"> انجنیری استخراج معادن مواد مفید جامد به طریقه زیرزمینی</option>
+     <option value="hydorology">جیولوجی انجنیری وهایدروجیولوجی</option>
+    </optgroup>
+
+     <optgroup label="پوهنځی انجنیری آب و محیط زیست">
+      <option value="engineering_sakhtumani">انجنیری ساختمان های آب</option>
+      <option value="Ab_rasani">آبرسانی و انجنیری محیط زیست</option>
+     
+    </optgroup>
+
+     <optgroup label="پوهنځی انجنیری ساختمانهای ترانسپورتی">
+      <option value="transiport">  انجنیری ساختمان های ترانسپورتی</option>
+      <option value="rah_ahan">انجنیری راه آهن</option>
+      
+    </optgroup>
+
+     <optgroup label="پوهنځی انجنیری جیوماتیک">
+      <option value="system_atlat">سیستم اطلاعات جغرافیایی و سنجش از دور</option>
+      <option value="code_astar">دیپارتمنت کدستر </option>
+      <option value="geaudizi"> دیپارتمنت جیودیزی </option>
+       <option value="geaudizi_engineering"> دیپارتمنت جیودیزی انجنیری </option>
+    </optgroup>
+
+    <optgroup label=" دیپارتمنت های عمومی">
+      <option value="physic">فزیک</option>
+      <option value="math">ریاضی</option>
+      <option value="chemia">کیمیا</option>
+       <option value="saqafat"> ثقافت</option>
+    </optgroup>
+  </select>
+   </div>
+
+
+                          
                           <div className="h-fit w-fit">
                             {/* <Datepicker
                               onChange={handleChange}
@@ -207,13 +332,13 @@ export default function AddSale({
                               setShow={handleClose}
                             /> */}
                             <label
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
                               htmlFor="salesDate"
                             >
                               تاریخ
                             </label>
-                            {/* <input
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                             <input
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                               type="date"
                               id="saleDate"
                               name="saleDate"
@@ -221,7 +346,7 @@ export default function AddSale({
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                            /> */}
+                            /> 
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">

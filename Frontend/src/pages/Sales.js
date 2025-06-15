@@ -7,6 +7,8 @@ function Sales() {
   const [sales, setAllSalesData] = useState([]);
   const [products, setAllProducts] = useState([]);
   const [stores, setAllStores] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [updatePage, setUpdatePage] = useState(true);
 
   const authContext = useContext(AuthContext);
@@ -46,6 +48,21 @@ function Sales() {
       });
   };
 
+////////////////////////serch function/////////////////////////////////////////
+
+  const handleSearchTerm = (e) => {
+  const value = e.target.value;
+  setSearchTerm(value);
+};
+
+
+
+
+
+///////////////////////////////////////////////////////////
+
+
+
   // Modal for Sale Add
   const addSaleModalSetting = () => {
     setShowSaleModal(!showSaleModal);
@@ -55,6 +72,33 @@ function Sales() {
   const handlePageUpdate = () => {
     setUpdatePage(!updatePage);
   };
+
+
+  
+  // Category change handler
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+  };
+/////////////////////////////////////
+  // فیلتر کردن خریدها بر اساس کتگوری انتخاب‌شده
+  const filteredSaleses = sales.filter((item) => {
+  const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
+  const matchesSearch = searchTerm
+    ? item.productID?.toLowerCase().includes(searchTerm.toLowerCase())
+    : true;
+  return matchesCategory && matchesSearch;
+});
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="col-span-12 lg:col-span-10  flex justify-center">
@@ -73,7 +117,53 @@ function Sales() {
           <div className="flex justify-between pt-5 pb-3 px-3">
             <div className="flex gap-4 justify-center items-center ">
               <span className="font-bold"> توزیع اجناس</span>
-            </div>
+
+              {/* ////////////////////////////////////////////////////////////////////// */}
+              {/* بخش جستجو */}
+              <div className="flex justify-center items-center px-2 border-2 rounded-md ">
+                <img
+                  alt="search-icon"
+                  className="w-5 h-5"
+                  src={require("../assets/search-icon.png")}
+                />
+                <input
+                  type="text"
+                  placeholder="جستجو کنید"
+                  value={searchTerm}
+                  onChange={handleSearchTerm}
+                  className="border-none outline-none px-2 text-sm"
+                />
+              </div>
+
+             {/* ////////////////////////////////////////////////////////////////////// */}
+                  {/* بخش انتخاب کتگوری با استایل مشابه */}
+              <div className="flex justify-center items-center px-2 border-2 rounded-md ml-4 w-48">
+                {/* اگر آیکون دارید این خط را استفاده کنید، در غیر این صورت حذف کنید */}
+                {/* <img
+                  alt="category-icon"
+                  className="w-5 h-5"
+                  src={require("../assets/category-icon.png")}
+                /> */}
+                <select
+  id="category"
+  name="category"
+  value={selectedCategory}
+  onChange={handleCategoryChange}
+  className="bg-gray-50 border-none outline-none  text-sm w-full"
+>
+  <option value="">همه کتگوری ها</option>  {/* این گزینه همه را نشان می‌دهد */}
+  <option value="electronics">الکترونیک</option>
+  <option value="stationery">لوازم تحریر</option>
+  <option value="food">مواد غذایی</option>
+  <option value="construction">ساختمانی</option>
+</select>
+    </div>
+     </div>
+
+
+    {/* ////////////////////////////////////////////////////////////////////// */}
+     
+         
             <div className="flex gap-4">
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 text-xs  rounded"
@@ -105,6 +195,9 @@ function Sales() {
 
                 <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
                   قیمت مجموع
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                  دیپارتمنت
                 </th>
               </tr>
             </thead>
