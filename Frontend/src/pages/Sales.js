@@ -6,7 +6,6 @@ function Sales() {
   const [showSaleModal, setShowSaleModal] = useState(false);
   const [sales, setAllSalesData] = useState([]);
   const [products, setAllProducts] = useState([]);
-  const [stores, setAllStores] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [updatePage, setUpdatePage] = useState(true);
@@ -16,7 +15,6 @@ function Sales() {
   useEffect(() => {
     fetchSalesData();
     fetchProductsData();
-    fetchStoresData();
   }, [updatePage]);
 
   // Fetching Data of All Sales
@@ -37,15 +35,6 @@ function Sales() {
         setAllProducts(data);
       })
       .catch((err) => console.log(err));
-  };
-
-  // Fetching Data of All Stores
-  const fetchStoresData = () => {
-    fetch(`http://localhost:4000/api/store/get/${authContext.user}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAllStores(data);
-      });
   };
 
 ////////////////////////serch function/////////////////////////////////////////
@@ -107,7 +96,6 @@ function Sales() {
           <AddSale
             addSaleModalSetting={addSaleModalSetting}
             products={products}
-            stores={stores}
             handlePageUpdate={handlePageUpdate}
             authContext={authContext}
           />
@@ -210,16 +198,19 @@ function Sales() {
                       {element.ProductID?.name}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.StoreID?.name}
+                      {element.StockSold}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.StockSold}
+                      {element.unit}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {element.SaleDate}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       ${element.TotalSaleAmount}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {element.department}
                     </td>
                   </tr>
                 );

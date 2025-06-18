@@ -1,8 +1,8 @@
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import Sales from "../pages/Sales";
-
+import { useEffect } from "react";
+// import Sales from "../pages/Sales";
 export default function AddSale({
   addSaleModalSetting,
   products,
@@ -12,18 +12,38 @@ export default function AddSale({
 }) {
   const [sale, setSale] = useState({
     userID: authContext.user,
-    productID: "",
+    distributedNumber:"",
     category: "",
-    storeID: "",
+    productID: "",
     stockSold: "",
-    saleDate: "",
-     SaleAmount: "",
+    unit: "",
+    saleAmount: "",
     totalSaleAmount: "",
-     unit: "",
     department: "",
+    saleDate: "",
+    description:"",
+    
   });
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
+
+
+
+   // محاسبه خودکار مجموع مبلغ خرید
+
+
+useEffect(() => {
+  const quantity = parseFloat(sale.stockSold);
+  const unitPrice = parseFloat(sale.saleAmount);
+  
+  if (!isNaN(quantity) && !isNaN(unitPrice)) {
+    const total = quantity * unitPrice;
+    setSale((prev) => ({
+      ...prev,
+      totalSaleAmount: total.toFixed(2),
+    }));
+  }
+}, [sale.stockSold, sale.saleAmount]);
 
 
   // Handling Input Change for input fields
@@ -47,6 +67,10 @@ export default function AddSale({
       })
       .catch((err) => console.log(err));
   };
+  useEffect(() => {
+  console.log("محصولات دریافتی:", products);
+}, [products]);
+
 
   return (
     // Modal
@@ -98,6 +122,29 @@ export default function AddSale({
                       </Dialog.Title>
                       <form action="#">
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
+                        
+
+                            {/* انتخاب نمبر توزیغ */}
+                           <div>
+                            <label
+                              htmlFor="disterbutedNumber"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                            >
+                              نمبر توزیع
+                            </label>
+                            <input
+                              type="number"
+                              name="distributedNumber"
+                              id="distributedNumber"
+                              
+                              value={sale.distributedNumber}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
+                              placeholder="نمبر توزیع را وارید کنید"
+                            />
+                          </div>
 
 
                            {/* انتخاب کتگوری */}
@@ -134,7 +181,7 @@ export default function AddSale({
                             <label
                               htmlFor="productID"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right" >
-                              نام محصول
+                              نام جنس
                             </label>
                             <select
                               id="productID"
@@ -144,7 +191,7 @@ export default function AddSale({
                                 handleInputChange(e.target.name, e.target.value)
                               }
                             >
-                              <option value="">انتخاب محصول</option>
+                              <option value="">انتخاب جنس</option>
                               {products.map((element, index) => {
                                 return (
                                   <option key={element._id} value={element._id}>
@@ -173,7 +220,7 @@ export default function AddSale({
                                 handleInputChange(e.target.name, e.target.value)
                               }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 text-right"
-                              placeholder="0 - 999"
+                              placeholder="مقدار جنس را وارد کنید"
                             />
                           </div>
 
@@ -212,16 +259,18 @@ export default function AddSale({
                             </label>
                             <input
                               type="number"
-                              name="SaleAmount"
+                              name="saleAmount"
                               id="price"
-                              value={sale.SaleAmount}
+                              value={sale.saleAmount}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 text-right"
                               placeholder="قیمت فی واحد"
                             />
-                              
+                              </div>
+
+                              <div>
                              <label
                               htmlFor="totalSaleAmount"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right"
@@ -248,7 +297,7 @@ export default function AddSale({
                               htmlFor="unit"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              دیپارتمنت
+                              اداره تحویل گیرنده
                             </label>
                             <select
                               id="department"
@@ -348,6 +397,29 @@ export default function AddSale({
                               }
                             /> 
                           </div>
+                            {/* توضیحات */}
+
+                            
+
+                            <div className="sm:col-span-2 text-right">
+                            <label htmlFor="description" 
+                            className="block mb-2 text-sm font-medium text-gray-900">
+                              مشخصات جنس
+                            </label>
+                            <textarea
+                              id="description"
+                              name="description"
+                              rows="6"
+                              value={sale.description}
+                              onChange={(e) => handleInputChange(e.target.name, e.target.value)}
+                              className="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300"
+                              placeholder="شرحی بنویسید..."
+                              dir="rtl"
+                            />
+                          </div>
+
+    
+                        
                         </div>
                         <div className="flex items-center space-x-4">
                           {/* <button

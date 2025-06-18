@@ -1,70 +1,73 @@
 const Sales = require("../models/sales");
 const soldStock = require("../controller/soldStock");
 
-// Add Sales
-const addSales = (req, res) => {
-  const addSale = new Sales({
-    userID: req.body.userID,
-    ProductID: req.body.productID,
-    StoreID: req.body.storeID,
-    StockSold: req.body.stockSold,
-    SaleDate: req.body.saleDate,
-    TotalSaleAmount: req.body.totalSaleAmount,
-  });
 
-  addSale
-    .save()
-    .then((result) => {
-      soldStock(req.body.productID, req.body.stockSold);
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      res.status(402).send(err);
-    });
-};
-
-// Get All Sales Data
-const getSalesData = async (req, res) => {
-  const findAllSalesData = await Sales.find({"userID": req.params.userID})
-    .sort({ _id: -1 })
-    .populate("ProductID")
-    .populate("StoreID"); // -1 for descending order
-  res.json(findAllSalesData);
-};
-
-// Get total sales amount
-const getTotalSalesAmount = async(req,res) => {
-  let totalSaleAmount = 0;
-  const salesData = await Sales.find({"userID": req.params.userID});
-  salesData.forEach((sale)=>{
-    totalSaleAmount += sale.TotalSaleAmount;
-  })
-  res.json({totalSaleAmount});
-
-}
-
-const getMonthlySales = async (req, res) => {
+const addSales = async (req, res) => {
   try {
-    const sales = await Sales.find();
+    console.log("Request Body:", req.body);
 
-    // Initialize array with 12 zeros
-    const salesAmount = [];
-    salesAmount.length = 12;
-    salesAmount.fill(0)
-
-    sales.forEach((sale) => {
-      const monthIndex = parseInt(sale.SaleDate.split("-")[1]) - 1;
-
-      salesAmount[monthIndex] += sale.TotalSaleAmount;
+    const newSale = new Sales({
+      userID: req.body.userID,
+      distributedNumber: req.body.distributedNumber, // ✅ اصلاح spelling
+      category: req.body.category,
+      productID: req.body.productID && req.body.productID.length === 24 ? req.body.productID : undefined, // ✅ شرط گذاشتن برای مقدار معتبر
+      stockSold: req.body.stockSold,
+      unit: req.body.unit,
+      saleAmount: req.body.saleAmount,
+      totalSaleAmount: req.body.totalSaleAmount,
+      department: req.body.department,
+      saleDate: new Date(req.body.saleDate),
+      description: req.body.description,
     });
 
-    res.status(200).json({ salesAmount });
+    const result = await newSale.save();
+
+    // فقط اگر productID معتبر داشت، برو soldStock اجرا کن
+    if (req.body.productID && req.body.productID.length === 24) {
+      await soldStock(req.body.productID, req.body.stockSold);
+    }
+
+    res.status(200).json(result);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error saving sale:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getSalesData = async (req, res) => {
+  try {
+    console.log("Request to get sales for user:", req.params.userID);
+    const sales = await Sales.find({ userID: req.params.userID })
+      .sort({ _id: -1 })
+      .populate("ProductID");
+
+    console.log("Found sales:", sales.length);
+    res.json(sales);
+  } catch (err) {
+    console.error("Error in getSalesData:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getTotalSalesAmount = async (req, res) => {
+  try {
+    console.log("Calculating total sales for user:", req.params.userID);
+    const salesData = await Sales.find({ userID: req.params.userID });
+
+    let total = 0;
+    salesData.forEach((sale) => {
+      console.log("Sale amount:", sale.totalSaleAmount);
+      total += sale.totalSaleAmount;
+    });
+
+    res.json({ totalSaleAmount: total });
+  } catch (err) {
+    console.error("Error in getTotalSalesAmount:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
 
 
-module.exports = { addSales, getMonthlySales, getSalesData,  getTotalSalesAmount};
+
+module.exports = { addSales, getSalesData,  getTotalSalesAmount};

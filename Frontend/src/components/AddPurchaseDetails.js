@@ -112,6 +112,8 @@ export default function AddPurchaseDetails({
                       <form>
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
 
+                       
+
                           {/* انتخاب جنس */}
   <div>
   <label

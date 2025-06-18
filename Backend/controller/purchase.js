@@ -1,5 +1,5 @@
 const Purchase = require("../models/purchase");
-const Product = require("../models/product"); // اضافه شده
+const Product = require("../models/Product"); // اضافه شده
 const Sales = require("../models/sales");     // اضافه شده
 const purchaseStock = require("./purchaseStock");
 
