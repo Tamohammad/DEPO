@@ -1,101 +1,177 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const express = require("express");
-const { main } = require("./models/index");
-const productRoute = require("./router/product");
-const storeRoute = require("./router/store");
-const purchaseRoute = require("./router/purchase");
-const salesRoute = require("./router/sales");
-const cors = require("cors");
-const User = require("./models/users");
-const Product = require("./models/Product");
 
+const Product = require("../models/Product.js");
+const Purchase = require("../models/purchase");
+const Sales = require("../models/sales");
 
-const app = express();
-const PORT = 4000;
-
-
-
-
-
-
-
-
-main();
-app.use(express.json());
-app.use(cors());
-
-// Store API
-app.use("/api/store", storeRoute);
-
-// Products API
-app.use("/api/product", productRoute);
-
-// Purchase API
-app.use("/api/purchase", purchaseRoute);
-
-// Sales API
-app.use("/api/sales", salesRoute);
-
-// ------------- Signin --------------
-let userAuthCheck;
-app.post("/api/login", async (req, res) => {
-  console.log(req.body);
-  // res.send("hi");
+const addProduct = async (req, res) => {
   try {
-    const user = await User.findOne({
-      email: req.body.email,
-      password: req.body.password,
+    const {
+      userId,
+      ticketserialnumber,
+      date,
+      description,
+      count,
+      unit,
+      priceperunit,
+      category,
+    } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "⚠️ شناسه کاربر ارسال نشده است." });
+    }
+
+    const parsedCount = parseFloat(count);
+    const parsedPrice = parseFloat(priceperunit);
+    const parsedTicketSerialNumber = parseInt(ticketserialnumber, 10);
+
+    if (
+      isNaN(parsedCount) ||
+      isNaN(parsedPrice) ||
+      isNaN(parsedTicketSerialNumber)
+    ) {
+      return res.status(400).json({ message: "⚠️ تعداد، قیمت یا شماره سریال معتبر نیست." });
+    }
+
+    const existingProduct = await Product.findOne({
+      userId,
+      ticketserialnumber: parsedTicketSerialNumber,
+      description: new RegExp(`^${description.trim()}$`, "i"),
+      unit: unit.trim(),
+      category: category.trim(),
     });
-    console.log("USER: ", user);
-    if (user) {
-      res.send(user);
-      userAuthCheck = user;
+
+    if (existingProduct) {
+      existingProduct.entries.push({
+        count: parsedCount,
+        price: parsedPrice,
+        date: date ? new Date(date) : new Date(),
+      });
+
+      const total = existingProduct.entries.reduce(
+        (acc, entry) => {
+          const c = parseFloat(entry.count);
+          const p = parseFloat(entry.price);
+          if (!isNaN(c) && !isNaN(p)) {
+            acc.count += c;
+            acc.totalPrice += c * p;
+          }
+          return acc;
+        },
+        { count: 0, totalPrice: 0 }
+      );
+
+      existingProduct.count = total.count;
+      existingProduct.totleprice = total.totalPrice;
+      existingProduct.priceperunit = parsedPrice;
+
+      const updated = await existingProduct.save();
+
+      return res.status(200).json({
+        message: "🔁 جنس موجود بود و بروزرسانی شد.",
+        product: updated,
+      });
     } else {
-      res.status(401).send("Invalid Credentials");
-      userAuthCheck = null;
+      const newProduct = new Product({
+        userId,
+        ticketserialnumber: parsedTicketSerialNumber,
+        description: description.trim(),
+        unit: unit.trim(),
+        category: category.trim(),
+        entries: [
+          {
+            count: parsedCount,
+            price: parsedPrice,
+            date: date ? new Date(date) : new Date(),
+          },
+        ],
+        count: parsedCount,
+        totleprice: parsedCount * parsedPrice,
+        priceperunit: parsedPrice,
+      });
+
+      const saved = await newProduct.save();
+
+      return res.status(201).json({
+        message: "✅ جنس جدید اضافه شد.",
+        product: saved,
+      });
     }
   } catch (error) {
-    console.log(error);
-    res.send(error);
+    console.error("❌ خطا در افزودن/بروزرسانی جنس:", error);
+    return res.status(500).json({ message: "⚠️ خطای سرور", error });
   }
-});
+};
 
-// Getting User Details of login user
-app.get("/api/login", (req, res) => {
-  res.send(userAuthCheck);
-});
-// ------------------------------------
+// دریافت همه‌ی محصولات
+const getAllProducts = async (req, res) => {
+  try {
+    const findAllProducts = await Product.find({
+      userId: req.params.userId,
+    }).sort({ _id: -1 });
 
-// Registration API
-app.post("/api/register", (req, res) => {
-  let registerUser = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password,
-    phoneNumber: req.body.phoneNumber,
-    imageUrl: req.body.imageUrl,
-  });
+    res.json(findAllProducts);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "خطا در دریافت محصولات" });
+  }
+};
 
-  registerUser
-    .save()
-    .then((result) => {
-      res.status(200).send(result);
-      alert("Signup Successfull");
-    })
-    .catch((err) => console.log("Signup: ", err));
-  console.log("request: ", req.body);
-});
+// حذف محصول خاص
+const deleteSelectedProduct = async (req, res) => {
+  try {
+    const deleteProduct = await Product.deleteOne({ _id: req.params.id });
+    const deletePurchaseProduct = await Purchase.deleteMany({ ProductID: req.params.id });
+    const deleteSaleProduct = await Sales.deleteMany({ ProductID: req.params.id });
 
+    res.json({ deleteProduct, deletePurchaseProduct, deleteSaleProduct });
+  } catch (error) {
+    console.error("❌ خطا در حذف:", error);
+    res.status(500).json({ message: "خطا در حذف محصول" });
+  }
+};
 
-app.get("/testget", async (req,res)=>{
-  const result = await Product.findOne({ _id: '6429979b2e5434138eda1564'})
-  res.json(result)
+// ویرایش محصول خاص
+const updateSelectedProduct = async (req, res) => {
+  try {
+    const updatedResult = await Product.findByIdAndUpdate(
+      req.body.productID,
+      {
+        ticketserialnumber: req.body.ticketserialnumber,
+        date: req.body.date,
+        description: req.body.description,
+        count: req.body.count,
+        unit: req.body.unit,
+        priceperunit: req.body.priceperunit,
+        totleprice: req.body.totleprice,
+        category: req.body.category,
+      },
+      { new: true }
+    );
+    res.json(updatedResult);
+  } catch (error) {
+    console.error("❌ خطا در بروزرسانی:", error);
+    res.status(500).send("خطا در بروزرسانی محصول");
+  }
+};
 
-})
+// جستجوی محصولات
+const searchProduct = async (req, res) => {
+  try {
+    const searchTerm = req.query.searchTerm;
+    const products = await Product.find({
+      description: { $regex: searchTerm, $options: "i" },
+    });
+    res.json(products);
+  } catch (error) {
+    console.error("❌ خطا در جستجو:", error);
+    res.status(500).send("خطا در جستجوی محصول");
+  }
+};
 
-// Here we are listening to the server
-app.listen(PORT, () => {
-  console.log("I am live again");
-});
+module.exports = {
+  addProduct,
+  getAllProducts,
+  deleteSelectedProduct,
+  updateSelectedProduct,
+  searchProduct,
+};

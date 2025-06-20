@@ -11,6 +11,8 @@ app.get("/get/:userID", sales.getSalesData);
 
 
 app.get("/get/:userID/totalsaleamount", sales.getTotalSalesAmount);
+// Search Product
+app.get("/search", sales.searchSales);
 
 module.exports = app;
 

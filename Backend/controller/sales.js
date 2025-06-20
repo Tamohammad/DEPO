@@ -39,7 +39,7 @@ const getSalesData = async (req, res) => {
     console.log("Request to get sales for user:", req.params.userID);
     const sales = await Sales.find({ userID: req.params.userID })
       .sort({ _id: -1 })
-      .populate("ProductID");
+      .populate("productID");
 
     console.log("Found sales:", sales.length);
     res.json(sales);
@@ -66,8 +66,16 @@ const getTotalSalesAmount = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+// Search Products
+const searchSales = async (req, res) => {
+  const searchTerm = req.query.searchTerm;
+  const products = await Sales.find({
+    description: { $regex: searchTerm, $options: "i" },
+  });
+  res.json(Sales);
+};
 
 
 
 
-module.exports = { addSales, getSalesData,  getTotalSalesAmount};
+module.exports = { addSales, getSalesData,  getTotalSalesAmount , searchSales};

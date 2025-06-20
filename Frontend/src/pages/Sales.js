@@ -165,27 +165,36 @@ function Sales() {
           <table className="min-w-full divide-y-2 divide-gray-200 text-sm">
             <thead>
               <tr>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  نام محصول
+              <th className="px-4 py-2 text-left">
+                    نمبر توزیع
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                <th className="px-4 py-2 text-left">
+                    کتگوری
+                </th>
+                <th className="px-4 py-2 text-left">
+                  نام جنس
+                </th>
+                <th className="px-4 py-2 text-left">
                   مقدار
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                <th className="px-4 py-2 text-left">
                   واحد
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                <th className="px-4 py-2 text-left">
                   تاریخ
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                <th className="px-4 py-2 text-left">
                   قیمت فی واحد
                 </th>
 
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
+                <th className="px-4 py-2 text-left">
                   قیمت مجموع
                 </th>
-                <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                  دیپارتمنت
+                <th className="px-4 py-2 text-left">
+                  اداره
+                </th>
+                <th className="px-4 py-2 text-left">
+                 توضیحات
                 </th>
               </tr>
             </thead>
@@ -194,23 +203,35 @@ function Sales() {
               {sales.map((element, index) => {
                 return (
                   <tr key={element._id}>
-                    <td className="whitespace-nowrap px-4 py-2  text-gray-900">
-                      {element.ProductID?.name}
+                  <td className="px-4 py-2 border">
+                      {element.distributedNumber}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.StockSold}
+                    <td className="px-4 py-2 border">
+                      {element.category}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    <td className="px-4 py-2 border">
+                      {element.productID?.description}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {element.stockSold}
+                    </td>
+                    <td className="px-4 py-2 border">
                       {element.unit}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {element.SaleDate}
+                    <td className="px-4 py-2 border">
+                      {element.saleAmount}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      ${element.TotalSaleAmount}
+                    <td className="px-4 py-2 border">
+                      {element.totalSaleAmount}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    <td className="px-4 py-2 border">
+                      {element.totalSaleAmount}
+                    </td>
+                    <td className="px-4 py-2 border">
                       {element.department}
+                    </td>
+                     <td className="px-4 py-2 border">
+                      {element.description}
                     </td>
                   </tr>
                 );

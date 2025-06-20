@@ -195,7 +195,7 @@ useEffect(() => {
                               {products.map((element, index) => {
                                 return (
                                   <option key={element._id} value={element._id}>
-                                    {element.name}
+                                    {element.description}
                                   </option>
                                 );
                               })}

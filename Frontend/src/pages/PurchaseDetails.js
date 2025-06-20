@@ -109,7 +109,7 @@ function PurchaseDetails() {
         <div className="overflow-x-auto rounded-lg border bg-white border-gray-200 ">
           <div className="flex justify-between pt-5 pb-3 px-3">
             <div className="flex gap-4 justify-center items-center ">
-              <span className="font-bold">جزئیات خرید</span>
+              <span className="font-bold">جزئیات داغ مه</span>
               
 
               {/* بخش جستجو */}
@@ -158,7 +158,7 @@ function PurchaseDetails() {
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 text-xs rounded"
                 onClick={() => setPurchaseModal(true)}
               >
-                افزودن خرید
+                افزودن داغ مه
               </button>
             </div>
           </div>
