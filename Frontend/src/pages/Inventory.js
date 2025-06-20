@@ -197,6 +197,7 @@ function Inventory() {
               <tr>
                 <th className="px-4 py-2 text-left">نمبر تکیت</th>
                 <th className="px-4 py-2 text-left">تاریخ</th>
+                <th className="px-4 py-2 text-left">نام جنس</th>
                 <th className="px-4 py-2 text-left">مشخصات جنس</th>
                 <th className="px-4 py-2 text-left">تعداد</th>
                 <th className="px-4 py-2 text-left">واحد</th>
@@ -221,11 +222,12 @@ function Inventory() {
                 return (
                   <tr key={element._id}>
                     <td className="px-4 py-2 border">
-                      {element.ticketserialnumber}
+                      {element.entries?.[0]?.ticketserialnumber || "—"}
                     </td>
                     <td className="px-4 py-2 border text-center">
                       {formattedDate}
                     </td>
+                    <td className="px-4 py-2 border">{element.name}</td>
                     <td className="px-4 py-2 border">{element.description}</td>
                     <td className="px-4 py-2 border">{element.count}</td>
                     <td className="px-4 py-2 border">{element.unit}</td>

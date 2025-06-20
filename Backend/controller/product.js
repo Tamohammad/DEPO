@@ -1,4 +1,6 @@
-import Product from "../models/Product.js"; // مطمئن شو این خط وجود دارد
+const Product = require("../models/Product.js");
+const Purchase = require("../models/purchase");
+const Sales = require("../models/sales");
 
 const addProduct = async (req, res) => {
   try {
@@ -6,6 +8,7 @@ const addProduct = async (req, res) => {
       userId,
       ticketserialnumber,
       date,
+      name,
       description,
       count,
       unit,
@@ -35,7 +38,7 @@ const addProduct = async (req, res) => {
 
     const existingProduct = await Product.findOne({
       userId,
-      ticketserialnumber: parsedTicketSerialNumber,
+      name: name.trim(), // ✅ ذخیره در سطح بالا
       description: new RegExp(`^${description.trim()}$`, "i"),
       unit: unit.trim(),
       category: category.trim(),
@@ -43,6 +46,7 @@ const addProduct = async (req, res) => {
 
     if (existingProduct) {
       existingProduct.entries.push({
+        name: name.trim(), // ✅ ذخیره در سطح بالا
         count: parsedCount,
         price: parsedPrice,
         date: date ? new Date(date) : new Date(),
@@ -74,12 +78,13 @@ const addProduct = async (req, res) => {
     } else {
       const newProduct = new Product({
         userId,
-        ticketserialnumber: parsedTicketSerialNumber,
+        name: name.trim(), // ✅ ذخیره در سطح بالا
         description: description.trim(),
         unit: unit.trim(),
         category: category.trim(),
         entries: [
           {
+            ticketserialnumber: parsedTicketSerialNumber,
             count: parsedCount,
             price: parsedPrice,
             date: date ? new Date(date) : new Date(),
@@ -103,12 +108,11 @@ const addProduct = async (req, res) => {
   }
 };
 
-// get allproduct
 const getAllProducts = async (req, res) => {
   try {
     const findAllProducts = await Product.find({
-      userId: req.params.userId, // دقت کن که کلید userId کوچیک نوشته شده باشه
-    }).sort({ _id: -1 }); // مرتب‌سازی نزولی
+      userId: req.params.userId,
+    }).sort({ _id: -1 });
 
     res.json(findAllProducts);
   } catch (error) {
@@ -117,21 +121,22 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-// Delete Selected Product
 const deleteSelectedProduct = async (req, res) => {
-  const deleteProduct = await deleteOne({ _id: req.params.id });
-  const deletePurchaseProduct = await _deleteOne({
+  // باید این توابع را از مدل‌ها import کنی یا به صورت Product.deleteOne و غیره استفاده کنی
+  const deleteProduct = await Product.deleteOne({ _id: req.params.id });
+  // مشابه برای purchase و sales:
+  const deletePurchaseProduct = await Purchase.deleteOne({
     ProductID: req.params.id,
   });
+  const deleteSaleProduct = await Sales.deleteOne({ ProductID: req.params.id });
 
-  const deleteSaleProduct = await __deleteOne({ ProductID: req.params.id });
   res.json({ deleteProduct, deletePurchaseProduct, deleteSaleProduct });
 };
-// Update Selected Product
+
 const updateSelectedProduct = async (req, res) => {
   try {
-    const updatedResult = await findByIdAndUpdate(
-      { _id: req.body.productID },
+    const updatedResult = await Product.findByIdAndUpdate(
+      req.body.productID,
       {
         ticketserialnumber: req.body.ticketserialnumber,
         date: req.body.date,
@@ -152,16 +157,15 @@ const updateSelectedProduct = async (req, res) => {
   }
 };
 
-// Search Products
 const searchProduct = async (req, res) => {
   const searchTerm = req.query.searchTerm;
-  const products = await find({
+  const products = await Product.find({
     description: { $regex: searchTerm, $options: "i" },
   });
   res.json(products);
 };
 
-export default {
+module.exports = {
   addProduct,
   getAllProducts,
   deleteSelectedProduct,
