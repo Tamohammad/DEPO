@@ -24,77 +24,29 @@ export default function Header() {
   return (
     <>
       <div className="min-h-full">
-        <Disclosure as="nav" className="bg-gray-800 bg-gradient-to-l from-blue-700 to-blue-900 text-white shadow-md fixed top-0 right-0 left-0 z-50">
+        <Disclosure
+          as="nav"
+          className="bg-gray-800 bg-gradient-to-l from-blue-700 to-blue-900 text-white shadow-md fixed top-0 right-0 left-0 z-50"
+        >
           {({ open }) => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                   <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
-                    <div className="flex justify-center items-center gap-2">
-                          <img
-                            className="h-10 w-10 rounded-full"
-                            src={require("../assets/Logo.jpeg")}
-                            alt="Inventory Management System"
-                          />
-                          <div className="flex items-center gap-4">
-                        <h1 className="text-2xl font-bold font-vazir">سیستم مدیریت گدام</h1>
+                      <div className="flex justify-center items-center gap-2">
+                        <img
+                          className="h-10 w-10 rounded-full"
+                          src={require("../assets/Logo.jpeg")}
+                          alt="Inventory Management System"
+                        />
+                        <div className="flex items-center gap-4">
+                          <h1 className="text-2xl font-bold font-vazir">
+                            سیستم مدیریت دیپو
+                          </h1>
                         </div>
-                    </div>
-                  </div>
-                </div>
-                  <div className="hidden md:block">
-                    <div className="ml-4 flex items-center md:ml-6">
-                      {/* <button
-                        type="button"
-                        className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                      >
-                        <span className="sr-only">View notifications</span>
-                        <BellIcon className="h-6 w-6" aria-hidden="true" />
-                      </button> */}
-
-                      {/* Profile dropdown */}
-                      <Menu as="div" className="relative ml-3">
-                        <div>
-                          <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                            <span className="sr-only">Open user menu</span>
-                            <img
-                              className="h-8 w-8 rounded-full"
-                              src={localStorageData.imageUrl}
-                              alt="profile"
-                            />
-                          </Menu.Button>
-                        </div>
-                        <Transition
-                          as={Fragment}
-                          enter="transition ease-out duration-100"
-                          enterFrom="transform opacity-0 scale-95"
-                          enterTo="transform opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="transform opacity-100 scale-100"
-                          leaveTo="transform opacity-0 scale-95"
-                        >
-                          <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            {userNavigation.map((item) => (
-                              <Menu.Item key={item.name}>
-                                {({ active }) => (
-                                  <Link
-                                    to={item.href}
-                                    className={classNames(
-                                      active ? "bg-gray-100" : "",
-                                      "block px-4 py-2 text-sm text-gray-700"
-                                    )}
-                                  >
-                                    <span onClick={() => authContext.signout()}>
-                                      {item.name}{" "}
-                                    </span>
-                                  </Link>
-                                )}
-                              </Menu.Item>
-                            ))}
-                          </Menu.Items>
-                        </Transition>
-                      </Menu>
+                          
+                      </div>
                     </div>
                   </div>
                   <div className="-mr-2 flex md:hidden">

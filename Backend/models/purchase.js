@@ -7,10 +7,10 @@ const PurchaseSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
-   productID: {
-  type: String, 
-  required: true,
-},
+    productID: {
+      type: String,
+      required: true,
+    },
     category: {
       type: String,
       required: true,
