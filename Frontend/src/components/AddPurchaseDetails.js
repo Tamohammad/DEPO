@@ -17,8 +17,6 @@ export default function AddPurchaseDetails({
     unit: "",
     purchaseDate: "",
     totalPurchaseAmount: "",
-    
-    
   });
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
@@ -56,12 +54,10 @@ export default function AddPurchaseDetails({
         alert("Purchase ADDED");
         handlePageUpdate();
         addSaleModalSetting();
-        
       })
       .catch((err) => console.log(err));
   };
 
-  
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -107,73 +103,62 @@ export default function AddPurchaseDetails({
                         as="h3"
                         className="text-lg py-4 font-semibold leading-6 text-gray-900 text-right"
                       >
-                        جزئیات خرید
+                        فورم اعاده اقلام
                       </Dialog.Title>
                       <form>
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
-
-                       
-
                           {/* انتخاب جنس */}
-  <div>
-  <label
-    htmlFor="productID"
-    className="block mb-2 text-sm font-medium text-gray-900 text-right"
-  >
-    نام جنس
-  </label>
-  <input
-    type="text"
-    id="productID"
-    name="productID"
-    value={purchase.productID}
-    onChange={(e) =>
-      handleInputChange(e.target.name, e.target.value)
-    }
-    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-    placeholder="نام جنس را وارد کنید"
-  />
-</div>
-
-
-                          {/* انتخاب کتگوری */}
                           <div>
                             <label
-                              htmlFor="category"
+                              htmlFor="productID"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              کتگوری
+                              نام جنس
                             </label>
-                            <select
-                              id="category"
-                              name="category"
-                              value={purchase.category}
+                            <input
+                              type="text"
+                              id="productID"
+                              name="productID"
+                              value={purchase.productID}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-                            >
-                              <option value="">انتخاب کتگوری</option>
-                              <option value="electronics">الکترونیک</option>
-                              <option value="stationery">لوازم تحریر</option>
-                              <option value="food">مواد غذایی</option>
-                              <option value="construction">ساختمانی</option>
-                            </select>
+                              placeholder="نام جنس را وارد کنید"
+                            />
                           </div>
-
+                          {/* تشرحات جنس */}
+                          <div>
+                            <label
+                              htmlFor="productID"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                            >
+                              تشریحات جنس
+                            </label>
+                            <input
+                              type="text"
+                              id="productID"
+                              name="productID"
+                              value={purchase.productID}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
+                              placeholder="نام جنس را وارد کنید"
+                            />
+                          </div>
                           {/* تعداد خرید */}
                           <div>
                             <label
                               htmlFor="quantityPurchased"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              تعداد خرید
+                              تعداد
                             </label>
                             <input
                               type="number"
                               name="quantityPurchased"
                               id="quantityPurchased"
-                              
                               value={purchase.quantityPurchased}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
@@ -184,10 +169,10 @@ export default function AddPurchaseDetails({
                           </div>
 
                           {/* واحد */}
-                          <div>
+                          <div className="text-right">
                             <label
                               htmlFor="unit"
-                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                              className="block mb-1 text-sm font-medium text-gray-900"
                             >
                               واحد
                             </label>
@@ -200,23 +185,60 @@ export default function AddPurchaseDetails({
                               }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
-                              <option value="" >انتخاب واحد</option>
-                              <option value="kg">کیلوگرام</option>
-                              <option value="liter">لیتر</option>
-                              <option value="piece">عدد</option>
-                              <option value="meter">متر</option>
-                              <option value="box">جعبه</option>
-                              <option value="pack">بسته</option>
+                              <option value="">انتخاب واحد</option>
+                              <option value="کیلوگرام">کیلوگرام</option>
+                              <option value="لیتر">لیتر</option>
+                              <option value="عدد">عدد</option>
+                              <option value="متر">متر</option>
+                              <option value="گده">گده</option>
+                              <option value="دانه">دانه</option>
+                              <option value="تیوب">تیوب</option>
+                              <option value="رول">رول</option>
+                              <option value="طفرا">طفرا</option>
+                              <option value="باب">باب</option>
+                              <option value="بسته">بسته</option>
+                              <option value="عراده">عراده</option>
+                              <option value="پایه">پایه</option>
+                              <option value="لیتر">لیتر</option>
+                              <option value="کواتر">کواتر</option>
+                              <option value="قوطی">قوطی</option>
+                              <option value="جلد">جلد</option>
+                              <option value="خاده">خاده</option>
+                              <option value="قطعه">قطعه</option>
+                              <option value="کارتن">کارتن</option>
+                              <option value="بشکه">بشکه</option>
+                              <option value="دسته">دسته</option>
+                              <option value="پاکت">پاکت</option>
+                              <option value="توتل">توتل</option>
+                              <option value="سیت">سیت</option>
                             </select>
                           </div>
-
+                          {/* تاریخ اعاده*/}
+                          <div>
+                            <label
+                              htmlFor="purchaseDate"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                            >
+                              تاریخ اعاده
+                            </label>
+                            <input
+                              type="date"
+                              id="purchaseDate"
+                              name="purchaseDate"
+                              value={purchase.purchaseDate}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
+                            />
+                          </div>
                           {/* قیمت فی واحد */}
                           <div>
                             <label
                               htmlFor="pricePerUnit"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              قیمت فی واحد
+                              قیمت گذاری فی واحد
                             </label>
                             <input
                               type="number"
@@ -231,13 +253,13 @@ export default function AddPurchaseDetails({
                             />
                           </div>
 
-                          {/* مجموع مبلغ خرید */}
+                          {/* مجموع قیمت گذاری*/}
                           <div>
                             <label
                               htmlFor="totalPurchaseAmount"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              مجموع مبلغ خرید
+                              مجموع قیمت گذاری
                             </label>
                             <input
                               type="number"
@@ -249,25 +271,35 @@ export default function AddPurchaseDetails({
                               placeholder="قیمت مجموعی"
                             />
                           </div>
-
-                          {/* تاریخ خرید */}
+                          {/* انتخاب کتگوری */}
                           <div>
                             <label
-                              htmlFor="purchaseDate"
+                              htmlFor="category"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              تاریخ خرید
+                              انتخاب کتگوری
                             </label>
-                            <input
-                              type="date"
-                              id="purchaseDate"
-                              name="purchaseDate"
-                              value={purchase.purchaseDate}
+                            <select
+                              id="category"
+                              name="category"
+                              value={purchase}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-                            />
+                            >
+                              <option value="">انتخاب کتگوری</option>
+                              <option value="قرطاسیه">قرطاسیه</option>
+                              <option value="روغنیات">روغنیات</option>
+                              <option value="اجناس حفظ و مراقبت">
+                                اجناس حفظ و مراقبت
+                              </option>
+                              <option value="اجناس دفتری">اجناس دفتری</option>
+                              <option value=" تجهیزات آی تی">
+                                {" "}
+                                تجهیزات آی تی{" "}
+                              </option>
+                            </select>
                           </div>
                         </div>
                       </form>

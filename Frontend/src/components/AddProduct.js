@@ -8,24 +8,23 @@ export default function AddProduct({
   handlePageUpdate,
 }) {
   const authContext = useContext(AuthContext);
-
-  // تاریخ امروز به فرمت YYYY-MM-DD
   const today = new Date().toISOString().split("T")[0];
+  const cancelButtonRef = useRef(null);
 
   const [product, setProduct] = useState({
-    userId: authContext.user,
+    userId: authContext.user?._id || "",
     ticketserialnumber: "",
-    date: today, // مقدار پیش‌فرض تاریخ امروز
+    date: today,
     name: "",
     description: "",
     count: "",
     unit: "",
     priceperunit: "",
+    totalPrice: "",
     category: "",
   });
 
   const [open, setOpen] = useState(true);
-  const cancelButtonRef = useRef(null);
 
   const handleInputChange = (key, value) => {
     setProduct((prev) => ({
@@ -38,39 +37,53 @@ export default function AddProduct({
     const parsedCount = parseFloat(product.count);
     const parsedPrice = parseFloat(product.priceperunit);
 
-    if (isNaN(parsedCount) || isNaN(parsedPrice)) {
-      alert("⚠️ لطفاً عدد معتبر برای تعداد و قیمت وارد کنید.");
+    if (
+      !product.userId ||
+      !product.ticketserialnumber ||
+      !product.name ||
+      !product.description ||
+      !product.unit ||
+      !product.category
+    ) {
+      alert("⚠ لطفاً همه فیلدهای ضروری را پر کنید.");
       return;
     }
+
+    if (isNaN(parsedCount) || isNaN(parsedPrice)) {
+      alert("⚠ لطفاً عدد معتبر برای تعداد و قیمت وارد کنید.");
+      return;
+    }
+
+    const calculatedTotal = parsedCount * parsedPrice;
 
     try {
       const response = await fetch("http://localhost:4000/api/product/add", {
         method: "POST",
-        headers: { "Content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...product,
+          userId: product.userId,
+          ticketserialnumber: Number(product.ticketserialnumber),
+          date: product.date,
+          name: product.name.trim(),
+          description: product.description.trim(),
           count: parsedCount,
+          unit: product.unit.trim(),
           priceperunit: parsedPrice,
+          totalPrice: calculatedTotal,
+          category: product.category.trim(),
         }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "خطا در افزودن جنس");
-      }
+      if (!response.ok) throw new Error(data.message || "خطا در افزودن جنس");
 
-      if (data.message.includes("جدید")) {
-        alert("✅ جنس جدید با موفقیت اضافه شد.");
-      } else if (data.message.includes("موجود بود")) {
-        alert("🔁 جنس موجود بود، قیمت و تعداد آن بروزرسانی شد.");
-      }
-
+      alert("✅ جنس جدید با موفقیت اضافه شد.");
       handlePageUpdate();
       addProductModalSetting();
     } catch (err) {
       console.error("❌ خطا در افزودن جنس:", err);
-      alert("⚠️ خطا در افزودن جنس. لطفاً دوباره تلاش کنید.");
+      alert("⚠ خطا در افزودن جنس. لطفاً دوباره تلاش کنید.");
     }
   };
 
@@ -94,7 +107,7 @@ export default function AddProduct({
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 z-10 overflow-y-auto">
+        <div className="fixed inset-0 z-10 overflow-y-auto ">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
               as={Fragment}
@@ -119,7 +132,7 @@ export default function AddProduct({
                         as="h3"
                         className="text-right text-lg font-semibold leading-6 text-gray-900"
                       >
-                        اضافه کردن محصول
+                        اضافه کردن جنس
                       </Dialog.Title>
                       <form action="#">
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
@@ -156,7 +169,7 @@ export default function AddProduct({
                             </label>
                             <input
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-                              type="date"
+                              type="text"
                               id="date"
                               name="date"
                               value={product.date}
@@ -165,6 +178,7 @@ export default function AddProduct({
                               }
                             />
                           </div>
+
                           <div className="text-right">
                             <label
                               htmlFor="name"
@@ -184,7 +198,6 @@ export default function AddProduct({
                               placeholder="نام جنس را وارد کنید..."
                             />
                           </div>
-
                           <div className="sm:col-span-2 text-right">
                             <label
                               htmlFor="description"
@@ -224,7 +237,6 @@ export default function AddProduct({
                               placeholder="تعداد را وارد ..."
                             />
                           </div>
-
                           <div className="text-right">
                             <label
                               htmlFor="unit"
@@ -269,7 +281,6 @@ export default function AddProduct({
                               <option value="سیت">سیت</option>
                             </select>
                           </div>
-
                           <div className="text-right">
                             <label
                               htmlFor="quantity"
@@ -298,9 +309,9 @@ export default function AddProduct({
                             </label>
                             <input
                               type="number"
-                              name="totleprice"
-                              id="totleprice"
-                              value={product.totleprice}
+                              name="totalPrice"
+                              id="totalPrice"
+                              value={product.totalPrice}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
@@ -308,18 +319,21 @@ export default function AddProduct({
                               placeholder="قیمت مجموعی را وارد..."
                             />
                           </div>
-
-                          <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md w-fit">
-                            <label className="text-gray-800 font-semibold text-sm whitespace-nowrap">
-                              انتخاب کتگوری:
+                          <div>
+                            <label
+                              htmlFor="category"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
+                            >
+                              انتخاب کتگوری
                             </label>
                             <select
+                              id="category"
                               name="category"
                               value={product.category}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                              className="border border-gray-300 bg-gray-50 text-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
                               <option value="">انتخاب کتگوری</option>
                               <option value="قرطاسیه">قرطاسیه</option>

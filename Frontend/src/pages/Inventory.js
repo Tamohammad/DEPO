@@ -91,9 +91,6 @@ function Inventory() {
     setShowProductModal(!showProductModal);
   };
 
-  {
-    /*Modal for Product UPDATE*/
-  }
   const updateProductModalSetting = (selectedProductData) => {
     console.log("Clicked: edit");
     setUpdateProduct(selectedProductData);
@@ -209,30 +206,22 @@ function Inventory() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredProducts.map((element) => {
-                const entryDate =
-                  element.entries &&
-                  element.entries[0] &&
-                  element.entries[0].date;
-                const formattedDate = entryDate
-                  ? moment(entryDate).format("jYYYY/jMM/jDD") // شمسی
-                  : "بدون تاریخ";
-
-                console.log("تاریخ دریافتی:", entryDate); // ✅ لاگ بررسی تاریخ
+                // ✅ لاگ بررسی تاریخ
 
                 return (
                   <tr key={element._id}>
                     <td className="px-4 py-2 border">
-                      {element.entries?.[0]?.ticketserialnumber || "—"}
+                      {element.ticketserialnumber || "—"}
                     </td>
                     <td className="px-4 py-2 border text-center">
-                      {formattedDate}
+                      {moment(element.date).format("jYYYY-jMM-jDD")}
                     </td>
                     <td className="px-4 py-2 border">{element.name}</td>
                     <td className="px-4 py-2 border">{element.description}</td>
                     <td className="px-4 py-2 border">{element.count}</td>
                     <td className="px-4 py-2 border">{element.unit}</td>
                     <td className="px-4 py-2 border">{element.priceperunit}</td>
-                    <td className="px-4 py-2 border">{element.totleprice}</td>
+                    <td className="px-4 py-2 border">{element.totalPrice}</td>
                     <td className="px-4 py-2 border">{element.category}</td>
                     <td className="px-4 py-2 border">
                       <div className="flex gap-3 justify-center items-center">
@@ -244,14 +233,14 @@ function Inventory() {
                           className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition"
                           title="ویرایش"
                         >
-                          ✏️
+                          ✏
                         </button>
                         <button
                           onClick={() => deleteItem(element._id)}
                           className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition"
                           title="حذف"
                         >
-                          🗑️
+                          🗑
                         </button>
                       </div>
                     </td>

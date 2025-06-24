@@ -39,7 +39,7 @@ function PurchaseDetails() {
 
   // Search products by term
   // const fetchSearchData = (term) => {
-  //   fetch(`http://localhost:4000/api/product/search?searchTerm=${term}`)
+  //   fetch(http://localhost:4000/api/product/search?searchTerm=${term})
   //     .then((res) => res.json())
   //     .then((data) => setAllProducts(data))
   //     .catch((err) => console.log(err));
@@ -47,18 +47,16 @@ function PurchaseDetails() {
 
   // Search input handler
   const handleSearchTerm = (e) => {
-  const value = e.target.value;
-  setSearchTerm(value);
-};
-
+    const value = e.target.value;
+    setSearchTerm(value);
+  };
 
   // Delete purchase item
   const deleteItem = (id) => {
     console.log("درخواست حذف با id:", id);
     fetch(`http://localhost:4000/api/purchase/delete/${id}`, {
-  method: "DELETE",
-})
-
+      method: "DELETE",
+    })
       .then((response) => {
         if (!response.ok) throw new Error("خطا در حذف خرید");
         return response.json();
@@ -86,13 +84,14 @@ function PurchaseDetails() {
 
   // فیلتر کردن خریدها بر اساس کتگوری انتخاب‌شده
   const filteredPurchases = purchase.filter((item) => {
-  const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-  const matchesSearch = searchTerm
-    ? item.productID?.toLowerCase().includes(searchTerm.toLowerCase())
-    : true;
-  return matchesCategory && matchesSearch;
-});
-
+    const matchesCategory = selectedCategory
+      ? item.category === selectedCategory
+      : true;
+    const matchesSearch = searchTerm
+      ? item.productID?.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div dir="rtl" className="col-span-12 lg:col-span-10 flex justify-center">
@@ -107,58 +106,56 @@ function PurchaseDetails() {
         )}
 
         <div className="overflow-x-auto rounded-lg border bg-white border-gray-200 ">
-          <div className="flex justify-between pt-5 pb-3 px-3">
-            <div className="flex gap-4 justify-center items-center ">
-              <span className="font-bold">جزئیات داغ مه</span>
-              
-
-              {/* بخش جستجو */}
-              <div className="flex justify-center items-center px-2 border-2 rounded-md ">
-                <img
-                  alt="search-icon"
-                  className="w-5 h-5"
-                  src={require("../assets/search-icon.png")}
-                />
-                <input
-                  type="text"
-                  placeholder="جستجو کنید"
-                  value={searchTerm}
-                  onChange={handleSearchTerm}
-                  className="border-none outline-none px-2 text-sm"
-                />
-              </div>
-
-              {/* بخش انتخاب کتگوری با استایل مشابه */}
-              <div className="flex justify-center items-center px-2 border-2 rounded-md ml-4 w-48">
-                {/* اگر آیکون دارید این خط را استفاده کنید، در غیر این صورت حذف کنید */}
-                {/* <img
-                  alt="category-icon"
-                  className="w-5 h-5"
-                  src={require("../assets/category-icon.png")}
-                /> */}
-                <select
-  id="category"
-  name="category"
-  value={selectedCategory}
-  onChange={handleCategoryChange}
-  className="bg-gray-50 border-none outline-none  text-sm w-full"
->
-  <option value="">همه کتگوری ها</option>  {/* این گزینه همه را نشان می‌دهد */}
-  <option value="electronics">الکترونیک</option>
-  <option value="stationery">لوازم تحریر</option>
-  <option value="food">مواد غذایی</option>
-  <option value="construction">ساختمانی</option>
-</select>
-
-              </div>
+          <div className="flex flex-wrap md:flex-nowrap justify-between items-center gap-4 px-4 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+            {/* عنوان وسط */}
+            <div className="flex-1 text-center md:text-right">
+              <span className="text-xl font-bold text-gray-800 dark:text-white">
+                ذخیره اقلام اعاده شده
+              </span>
             </div>
 
-            <div className="flex gap-4">
+            {/* باکس جستجو */}
+            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-xl shadow-sm">
+              <img
+                alt="search-icon"
+                className="w-5 h-5 opacity-60"
+                src={require("../assets/search-icon.png")}
+              />
+              <input
+                type="text"
+                placeholder="جستجو کنید"
+                value={searchTerm}
+                onChange={handleSearchTerm}
+                className="bg-transparent text-sm text-gray-800 dark:text-white focus:outline-none"
+              />
+            </div>
+
+            {/* انتخاب کتگوری */}
+            <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+              <label className="text-gray-700 font-medium text-sm whitespace-nowrap">
+                انتخاب کتگوری:
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-white border border-gray-300 text-sm text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              >
+                <option value="">انتخاب کتگوری</option>
+                <option value="قرطاسیه">قرطاسیه</option>
+                <option value="روغنیات">روغنیات</option>
+                <option value="اجناس حفظ و مراقبت">اجناس حفظ و مراقبت</option>
+                <option value="اجناس دفتری">اجناس دفتری</option>
+                <option value="تجهیزات آی تی">تجهیزات آی تی</option>
+              </select>
+            </div>
+
+            {/* دکمه افزودن داغمه */}
+            <div>
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold p-2 text-xs rounded"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 text-sm rounded-xl shadow-sm transition duration-200"
                 onClick={() => setPurchaseModal(true)}
               >
-                افزودن داغ مه
+                افزودن داغمه
               </button>
             </div>
           </div>
@@ -167,25 +164,28 @@ function PurchaseDetails() {
             <thead>
               <tr>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
-                  کتگوری
-                </th>
-                <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
                   نام جنس
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
-                  تعداد خرید
+                  تشرحات جنس
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
+                  تعداد
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
                   واحد
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
-                  تاریخ خرید
+                  تاریخ اعاده
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
-                  قیمت فی واحد
+                  قیمت گذاری فی واحد
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
-                  مجموع مبلغ خرید
+                  مجموع قیمت گذاری
+                </th>
+                <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
+                  کتگوری
                 </th>
                 <th className="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-900">
                   عملیات
@@ -196,39 +196,42 @@ function PurchaseDetails() {
             <tbody className="divide-y divide-gray-200">
               {filteredPurchases.map((element) => (
                 <tr key={element._id}>
-                  <td className="whitespace-nowrap px-4 py-2 text-right text-gray-900">
-                    {element.category}
+                  <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
+                    {element.name}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
-                    {element.productID}
+                    {element.discription}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
-                    {element.quantityPurchased}
+                    {element.quantityStock}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
                     {element.unit}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
-                    {new Date(element.purchaseDate).toLocaleDateString()}
+                    {new Date(element.stockDate).toLocaleDateString()}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
                     {element.pricePerUnit}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
-                    {element.totalPurchaseAmount}
+                    {element.totleprice}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-right text-gray-900">
+                    {element.category}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-right text-gray-700">
                     <span
                       className="text-green-700 cursor-pointer mx-1"
                       onClick={() => updateProductModalSetting(element)}
                     >
-                      Edit
+                      ✏️
                     </span>
                     <span
                       className="text-red-600 cursor-pointer mx-1"
                       onClick={() => deleteItem(element._id)}
                     >
-                      حذف
+                      🗑️
                     </span>
                   </td>
                 </tr>

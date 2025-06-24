@@ -1,74 +1,56 @@
 const mongoose = require("mongoose");
 
-const EntrySchema = new mongoose.Schema(
+const ProductSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users", // مطمئن شو مدل کاربر با همین نام تعریف شده
       required: true,
-      trim: true,
     },
     ticketserialnumber: {
       type: Number,
       required: true,
     },
-    count: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
     date: {
-      type: Date,
+      type: String,
       default: Date.now,
     },
-  },
-  { _id: false }
-);
-
-const ProductSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
+    name: {
+      type: String,
       required: true,
+      trim: true,
     },
     description: {
       type: String,
       required: true,
       trim: true,
     },
+    count: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     unit: {
       type: String,
       required: true,
       trim: true,
     },
-    category: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    entries: {
-      type: [EntrySchema],
-      default: [],
-    },
-    count: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    totleprice: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
     priceperunit: {
       type: Number,
       required: true,
       default: 0,
+      min: 0,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
+    category: {
+      type: String,
+      required: true,
+      trim: true,
     },
   },
   { timestamps: true }

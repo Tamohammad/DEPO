@@ -1,7 +1,6 @@
 const Sales = require("../models/sales");
 const soldStock = require("../controller/soldStock");
 
-
 const addSales = async (req, res) => {
   try {
     console.log("Request Body:", req.body);
@@ -10,7 +9,10 @@ const addSales = async (req, res) => {
       userID: req.body.userID,
       distributedNumber: req.body.distributedNumber, // ✅ اصلاح spelling
       category: req.body.category,
-      productID: req.body.productID && req.body.productID.length === 24 ? req.body.productID : undefined, // ✅ شرط گذاشتن برای مقدار معتبر
+      productID:
+        req.body.productID && req.body.productID.length === 24
+          ? req.body.productID
+          : undefined, // ✅ شرط گذاشتن برای مقدار معتبر
       stockSold: req.body.stockSold,
       unit: req.body.unit,
       saleAmount: req.body.saleAmount,
@@ -75,7 +77,4 @@ const searchSales = async (req, res) => {
   res.json(Sales);
 };
 
-
-
-
-module.exports = { addSales, getSalesData,  getTotalSalesAmount , searchSales};
+module.exports = { addSales, getSalesData, getTotalSalesAmount, searchSales };

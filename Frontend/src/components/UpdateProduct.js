@@ -11,6 +11,7 @@ export default function UpdateProduct({
     _id,
     ticketserialnumber,
     date,
+    name,
     description,
     count,
     unit,
@@ -22,6 +23,7 @@ export default function UpdateProduct({
     productID: _id,
     ticketserialnumber: ticketserialnumber,
     date: date,
+    name: name,
     description: description,
     count: count,
     unit: unit,
@@ -154,6 +156,26 @@ export default function UpdateProduct({
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
+                            />
+                          </div>
+                          {/* نام جنس */}
+                          <div className="text-right">
+                            <label
+                              htmlFor="name"
+                              className="block mb-1 text-sm font-medium text-gray-900"
+                            >
+                              نام جنس
+                            </label>
+                            <input
+                              type="text"
+                              name="name"
+                              id="name"
+                              value={product.name}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                              placeholder="نام جنس را وارد کنید..."
                             />
                           </div>
                           <div className="sm:col-span-2 text-right">
