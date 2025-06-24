@@ -12,7 +12,7 @@ export default function AddProduct({
   const cancelButtonRef = useRef(null);
 
   const [product, setProduct] = useState({
-    userId: authContext.user?._id || "",
+    userId: authContext.user,
     ticketserialnumber: "",
     date: today,
     name: "",
@@ -38,7 +38,6 @@ export default function AddProduct({
     const parsedPrice = parseFloat(product.priceperunit);
 
     if (
-      !product.userId ||
       !product.ticketserialnumber ||
       !product.name ||
       !product.description ||
