@@ -1,6 +1,8 @@
+
 const Product = require("../models/product.js");
 const Purchase = require("../models/purchase");
 const Sales = require("../models/sales");
+const Inventory = require("../models/Inventory");
 // controller
 const addProduct = async (req, res) => {
   try {
@@ -61,7 +63,29 @@ const addProduct = async (req, res) => {
     });
 
     const saved = await newProduct.save();
+    ////////////////////////////////////////////////////////
+   const existingInventory = await Inventory.findOne({
+  name: saved.name,
+  unit: saved.unit,
+  category: saved.category,
+});
 
+if (existingInventory) {
+  // اگر کالا قبلاً موجود است، تعداد را افزایش بده
+  existingInventory.totalCount += parsedCount;
+  await existingInventory.save();
+} else {
+  // در غیر این صورت، یک رکورد جدید برای موجودی بساز
+  await Inventory.create({
+    productId: saved._id,
+    name: saved.name,
+    unit: saved.unit,
+    category: saved.category,
+    totalCount: parsedCount,
+  });
+}
+
+////////////////////////////////////////////////////////////////////
     return res.status(201).json({
       message: "✅ جنس جدید با موفقیت اضافه شد.",
       product: saved,
@@ -140,5 +164,5 @@ module.exports = {
   getAllProducts,
   deleteSelectedProduct,
   updateSelectedProduct,
-  searchProduct,
-};
+  searchProduct,  
+  };

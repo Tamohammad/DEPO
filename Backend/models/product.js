@@ -1,5 +1,9 @@
+
+<<<<<<< HEAD
+=======
 const mongoose = require("mongoose");
 
+>>>>>>> cc37c6d ( i added sales page completly)
 const ProductSchema = new mongoose.Schema(
   {
     userId: {

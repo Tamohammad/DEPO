@@ -6,6 +6,8 @@ const productRoute = require("./router/product").default;
 const storeRoute = require("./router/store");
 const purchaseRoute = require("./router/purchase");
 const salesRoute = require("./router/sales");
+const inventoryRoutes = require("./router/inventory");
+
 const cors = require("cors");
 const User = require("./models/users");
 
@@ -27,6 +29,8 @@ app.use("/api/purchase", purchaseRoute);
 
 // Sales API
 app.use("/api/sales", salesRoute);
+//inventory API
+app.use("/api/inventory", inventoryRoutes);
 
 // ------------- Signin --------------
 let userAuthCheck;
