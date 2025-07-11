@@ -1,13 +1,15 @@
-import express from "express";
-import product from "../controller/product.js"; // ← این اجباری است
-import cors from "cors"; // برای جلوگیری از مشکلات CORS
+// product.js یا هر فایل مشابه
+const express = require("express");
+const cors = require("cors");
+const product = require("../controller/product"); // بدون .js
+
 const app = express();
 
 // Add Product
 app.post("/add", product.addProduct);
 
 // Get All Products
-app.get("/get/:userId", product.getAllProducts);
+app.get("/get/:userID", product.getAllProducts);
 
 // Delete Selected Product Item
 app.get("/delete/:id", product.deleteSelectedProduct);
@@ -20,4 +22,4 @@ app.get("/search", product.searchProduct);
 
 // http://localhost:4000/api/product/search?searchTerm=fa
 
-export default app;
+module.exports = app;

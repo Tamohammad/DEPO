@@ -1,17 +1,18 @@
 import { Fragment, useRef, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import DateObject from "react-date-object";
 
-export default function AddPurchaseDetails({
-  addSaleModalSetting,
+export default function UpdatePurchase({
+  updateModalSetting,
   handlePageUpdate,
-  authContext,
+  purchaseData,
 }) {
   const [purchase, setPurchase] = useState({
-    userID: authContext.user?._id || "",
+    userID: "",
     productID: "",
     category: "",
     quantityPurchased: "",
@@ -25,16 +26,32 @@ export default function AddPurchaseDetails({
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
 
-  // ✅ به‌روزرسانی خودکار قیمت مجموعی
+  useEffect(() => {
+    if (purchaseData) {
+      const dateObject = purchaseData.purchaseDateShamsi
+        ? new DateObject({
+            date: purchaseData.purchaseDateShamsi,
+            calendar: persian,
+            locale: persian_fa,
+            format: "YYYY/MM/DD",
+          })
+        : null;
+
+      setPurchase({
+        ...purchaseData,
+        purchaseDate: dateObject,
+        purchaseDateShamsi: purchaseData.purchaseDateShamsi,
+      });
+    }
+  }, [purchaseData]);
+
   useEffect(() => {
     const quantity = parseFloat(purchase.quantityPurchased);
     const price = parseFloat(purchase.pricePerUnit);
-
     if (!isNaN(quantity) && !isNaN(price)) {
-      const total = (quantity * price).toFixed(2);
       setPurchase((prev) => ({
         ...prev,
-        totalPurchaseAmount: total,
+        totalPurchaseAmount: parseFloat((quantity * price).toFixed(2)),
       }));
     } else {
       setPurchase((prev) => ({
@@ -44,65 +61,42 @@ export default function AddPurchaseDetails({
     }
   }, [purchase.quantityPurchased, purchase.pricePerUnit]);
 
-  const handleInputChange = (eOrName, value) => {
-    if (typeof eOrName === "string") {
-      const name = eOrName;
-      setPurchase((prev) => ({
-        ...prev,
-        [name]: value,
-        ...(name === "purchaseDate" && value
-          ? { purchaseDateShamsi: value.format("YYYY/MM/DD") }
-          : {}),
-      }));
-    } else {
-      const { name, value } = eOrName.target;
-      setPurchase((prev) => ({ ...prev, [name]: value }));
-    }
+  const handleInputChange = (key, value) => {
+    setPurchase((prev) => ({ ...prev, [key]: value }));
   };
 
-  const closeModal = () => {
-    setOpen(false);
-    addSaleModalSetting();
-  };
-
-  const addSale = async () => {
-    const {
-      productID,
-      category,
-      quantityPurchased,
-      unit,
-      pricePerUnit,
-      purchaseDate,
-      ProductDateShamsi,
-    } = purchase;
-
-    if (
-      !productID ||
-      !category ||
-      !quantityPurchased ||
-      !pricePerUnit ||
-      !unit ||
-      !purchaseDate
-    ) {
-      alert("لطفاً تمام فیلدهای لازم را پر کنید.");
+  const updatePurchase = () => {
+    if (!purchase._id) {
+      alert("شناسه خرید موجود نیست.");
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:4000/api/purchase/add", {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify(purchase),
-      });
-      if (!response.ok) throw new Error("خطا در ارسال اطلاعات");
+    const formattedPurchase = {
+      ...purchase,
+      purchaseDate: purchase.purchaseDate?.format("YYYY/MM/DD") || "",
+      purchaseDateShamsi: purchase.purchaseDate?.format("YYYY/MM/DD") || "",
+    };
 
-      alert("جنس اعاده شده با موفقیت اضافه شد✅.");
-      handlePageUpdate();
-      closeModal();
-    } catch (err) {
-      alert(err.message);
-      console.error(err);
-    }
+    fetch(`http://localhost:4000/api/purchase/update/${purchase._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formattedPurchase),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("خطا در بروزرسانی");
+        return res.json();
+      })
+      .then(() => {
+        alert("ویرایش با موفقیت انجام شد");
+        handlePageUpdate();
+        updateModalSetting(false);
+        setOpen(false);
+      })
+      .catch((err) => {
+        alert("خطا در بروزرسانی: " + err.message);
+      });
   };
 
   return (
@@ -111,7 +105,10 @@ export default function AddPurchaseDetails({
         as="div"
         className="relative z-10"
         initialFocus={cancelButtonRef}
-        onClose={setOpen}
+        onClose={(val) => {
+          setOpen(val);
+          if (!val) updateModalSetting(false);
+        }}
       >
         <Transition.Child
           as={Fragment}
@@ -139,9 +136,9 @@ export default function AddPurchaseDetails({
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg overflow-y-scroll">
                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <PlusIcon
-                        className="h-6 w-6 text-blue-400"
+                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                      <PencilSquareIcon
+                        className="h-6 w-6 text-yellow-500"
                         aria-hidden="true"
                       />
                     </div>
@@ -150,10 +147,11 @@ export default function AddPurchaseDetails({
                         as="h3"
                         className="text-lg py-4 font-semibold leading-6 text-gray-900 text-right"
                       >
-                        فورم اعاده جنس
+                        ویرایش اطلاعات اجناس اعاده شده
                       </Dialog.Title>
                       <form>
                         <div className="grid gap-4 mb-4 sm:grid-cols-2">
+                          {/* فیلدهای فرم */}
                           <div>
                             <label
                               htmlFor="productID"
@@ -166,7 +164,9 @@ export default function AddPurchaseDetails({
                               id="productID"
                               name="productID"
                               value={purchase.productID}
-                              onChange={handleInputChange}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                               placeholder="نام جنس را وارد کنید"
                             />
@@ -183,7 +183,9 @@ export default function AddPurchaseDetails({
                               id="category"
                               name="category"
                               value={purchase.category}
-                              onChange={handleInputChange}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
                               <option value="">انتخاب کتگوری</option>
@@ -211,16 +213,18 @@ export default function AddPurchaseDetails({
                               name="quantityPurchased"
                               id="quantityPurchased"
                               value={purchase.quantityPurchased}
-                              onChange={handleInputChange}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                               placeholder="تعداد جنس"
                             />
                           </div>
 
-                          <div className="text-right">
+                          <div>
                             <label
                               htmlFor="unit"
-                              className="block mb-1 text-sm font-medium text-gray-900"
+                              className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
                               واحد
                             </label>
@@ -228,7 +232,9 @@ export default function AddPurchaseDetails({
                               id="unit"
                               name="unit"
                               value={purchase.unit}
-                              onChange={handleInputChange}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
                               <option value="">انتخاب واحد</option>
@@ -254,7 +260,7 @@ export default function AddPurchaseDetails({
                               <option value="بشکه">بشکه</option>
                               <option value="دسته">دسته</option>
                               <option value="پاکت">پاکت</option>
-                              <option value="توتل">بوتل</option>
+                              <option value="توتل">توتل</option>
                               <option value="سیت">سیت</option>
                             </select>
                           </div>
@@ -264,14 +270,16 @@ export default function AddPurchaseDetails({
                               htmlFor="pricePerUnit"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              قیمت گذاری فیات
+                              قیمت گذاری فی واحد
                             </label>
                             <input
                               type="number"
                               name="pricePerUnit"
                               id="pricePerUnit"
                               value={purchase.pricePerUnit}
-                              onChange={handleInputChange}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                               placeholder="قیمت فی واحد"
                             />
@@ -282,7 +290,7 @@ export default function AddPurchaseDetails({
                               htmlFor="totalPurchaseAmount"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                             >
-                              قیمت گذاری مجموعی
+                              مجموع قیمت گذاری
                             </label>
                             <input
                               type="number"
@@ -295,7 +303,6 @@ export default function AddPurchaseDetails({
                             />
                           </div>
 
-                          {/* تاریخ */}
                           <div>
                             <label
                               htmlFor="purchaseDate"
@@ -307,9 +314,13 @@ export default function AddPurchaseDetails({
                               calendar={persian}
                               locale={persian_fa}
                               value={purchase.purchaseDate}
-                              onChange={(date) =>
-                                handleInputChange("purchaseDate", date)
-                              }
+                              onChange={(date) => {
+                                handleInputChange("purchaseDate", date);
+                                handleInputChange(
+                                  "purchaseDateShamsi",
+                                  date?.format("YYYY/MM/DD") || ""
+                                );
+                              }}
                               format="YYYY/MM/DD"
                               inputClass="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
                               placeholder="تاریخ را انتخاب کنید"
@@ -324,18 +335,21 @@ export default function AddPurchaseDetails({
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                   <button
                     type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    onClick={addSale}
+                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 sm:ml-3 sm:w-auto"
+                    onClick={updatePurchase}
                   >
-                    اضافه کردن
+                    ویرایش
                   </button>
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => addSaleModalSetting()}
+                    onClick={() => {
+                      setOpen(false);
+                      updateModalSetting(false);
+                    }}
                     ref={cancelButtonRef}
                   >
-                    لغو کردن
+                    لغو
                   </button>
                 </div>
               </Dialog.Panel>

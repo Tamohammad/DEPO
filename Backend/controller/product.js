@@ -1,17 +1,20 @@
-
 const Product = require("../models/product.js");
 const Purchase = require("../models/purchase");
 const Sales = require("../models/sales");
 const Inventory = require("../models/Inventory");
+const persianTools = require("persian-tools2");
+const moment = require("moment-jalaali");
+moment.loadPersian({ dialect: "persian-modern", usePersianDigits: true });
 // controller
 const addProduct = async (req, res) => {
   try {
     console.log("Received product data:", req.body);
 
     const {
-      userId,
+      userID,
       ticketserialnumber,
       date,
+      ProductDateShamsi, // تاریخ شمسی برای نمایش
       name,
       description,
       count,
@@ -21,8 +24,12 @@ const addProduct = async (req, res) => {
       category,
     } = req.body;
 
+    const productDateMiladi = date
+      ? moment(date, "jYYYY/jMM/jDD").toDate()
+      : new Date();
+
     if (
-      !userId ||
+      !userID ||
       !ticketserialnumber ||
       !name ||
       !description ||
@@ -47,12 +54,12 @@ const addProduct = async (req, res) => {
     const finalTotalPrice =
       totalPrice ??
       (parsedPrice && parsedCount ? parsedPrice * parsedCount : 0);
-    const today = new Date().toISOString().split("T")[0];
 
     const newProduct = new Product({
-      userId,
+      userID,
       ticketserialnumber: parsedTicket,
-      date: today,
+      date: productDateMiladi, // تاریخ میلادی برای کوئری‌ها
+      ProductDateShamsi,
       name: name.trim(),
       description: description.trim(),
       count: parsedCount,
@@ -64,28 +71,30 @@ const addProduct = async (req, res) => {
 
     const saved = await newProduct.save();
     ////////////////////////////////////////////////////////
-   const existingInventory = await Inventory.findOne({
-  name: saved.name,
-  unit: saved.unit,
-  category: saved.category,
-});
+    const existingInventory = await Inventory.findOne({
+      name: saved.name,
+      unit: saved.unit,
+      category: saved.category,
+      userID: userID,
+    });
 
-if (existingInventory) {
-  // اگر کالا قبلاً موجود است، تعداد را افزایش بده
-  existingInventory.totalCount += parsedCount;
-  await existingInventory.save();
-} else {
-  // در غیر این صورت، یک رکورد جدید برای موجودی بساز
-  await Inventory.create({
-    productId: saved._id,
-    name: saved.name,
-    unit: saved.unit,
-    category: saved.category,
-    totalCount: parsedCount,
-  });
-}
+    if (existingInventory) {
+      // اگر کالا قبلاً موجود است، تعداد را افزایش بده
+      existingInventory.totalCount += parsedCount;
+      await existingInventory.save();
+    } else {
+      // در غیر این صورت، یک رکورد جدید برای موجودی بساز
+      await Inventory.create({
+        productId: saved._id,
+        name: saved.name,
+        unit: saved.unit,
+        category: saved.category,
+        totalCount: parsedCount,
+        userID: userID,
+      });
+    }
 
-////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
     return res.status(201).json({
       message: "✅ جنس جدید با موفقیت اضافه شد.",
       product: saved,
@@ -104,7 +113,7 @@ module.exports = { addProduct };
 const getAllProducts = async (req, res) => {
   try {
     const findAllProducts = await Product.find({
-      userId: req.params.userId,
+      userID: req.params.userID,
     }).sort({ _id: -1 });
 
     res.json(findAllProducts);
@@ -128,18 +137,37 @@ const deleteSelectedProduct = async (req, res) => {
 
 const updateSelectedProduct = async (req, res) => {
   try {
+    const {
+      productID,
+      ticketserialnumber,
+      date,
+      ProductDateShamsi,
+      description,
+      name,
+      count,
+      unit,
+      priceperunit,
+      totalPrice,
+      category,
+    } = req.body;
+
+    const productDateMiladi = date
+      ? moment(date, "jYYYY/jMM/jDD").toDate()
+      : new Date();
+
     const updatedResult = await Product.findByIdAndUpdate(
-      req.body.productID,
+      productID,
       {
-        ticketserialnumber: req.body.ticketserialnumber,
-        date: req.body.date,
-        description: req.body.description,
-        name: req.body.name,
-        count: req.body.count,
-        unit: req.body.unit,
-        priceperunit: req.body.priceperunit,
-        totleprice: req.body.totleprice,
-        category: req.body.category,
+        ticketserialnumber,
+        date: productDateMiladi, // تاریخ میلادی برای کوئری‌ها
+        ProductDateShamsi, // تاریخ شمسی برای نمایش
+        description,
+        name,
+        count,
+        unit,
+        priceperunit,
+        totalPrice,
+        category,
       },
       { new: true }
     );
@@ -147,16 +175,27 @@ const updateSelectedProduct = async (req, res) => {
     res.json(updatedResult);
   } catch (error) {
     console.log(error);
-    res.status(402).send("Error");
+    res.status(500).send("Error updating product");
   }
 };
 
+// search product code
 const searchProduct = async (req, res) => {
   const searchTerm = req.query.searchTerm;
-  const products = await Product.find({
-    description: { $regex: searchTerm, $options: "i" },
-  });
-  res.json(products);
+
+  try {
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { description: { $regex: searchTerm, $options: "i" } },
+      ],
+    });
+
+    res.json(products);
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ error: "خطا در جستجوی محصولات" });
+  }
 };
 
 module.exports = {
@@ -164,5 +203,5 @@ module.exports = {
   getAllProducts,
   deleteSelectedProduct,
   updateSelectedProduct,
-  searchProduct,  
-  };
+  searchProduct,
+};

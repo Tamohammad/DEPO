@@ -1,9 +1,8 @@
-
 const Inventory = require("../models/Inventory");
 
-const soldStock = async (productId, stockSold) => {
+const soldStock = async (productId, stockSold, userID) => {
   // پیدا کردن موجودی کالا
-  const inventoryItem = await Inventory.findOne({ productId });
+  const inventoryItem = await Inventory.findOne({ productId, userID });
 
   if (!inventoryItem) {
     throw new Error("❌ محصول مورد نظر در موجودی یافت نشد.");
@@ -11,7 +10,9 @@ const soldStock = async (productId, stockSold) => {
 
   // بررسی موجودی کافی
   if (inventoryItem.totalCount < stockSold) {
-    throw new Error(`❌ موجودی کافی نیست. فقط ${inventoryItem.totalCount} عدد موجود است.`);
+    throw new Error(
+      `❌ موجودی کافی نیست. فقط ${inventoryItem.totalCount} عدد موجود است.`
+    );
   }
 
   // کم کردن موجودی

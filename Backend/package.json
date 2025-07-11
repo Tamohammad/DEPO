@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serverStart": "nodemon server.js"
@@ -13,12 +14,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
+    "moment-jalaali": "^0.10.4",
     "mongoose": "^7.8.7",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^2.0.21",
-    "type": "commonjs"
-
-    
-
+    "persian-tools2": "^1.5.0"
   }
 }

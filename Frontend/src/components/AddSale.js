@@ -1,17 +1,24 @@
-
 import React, { Fragment, useRef, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 // import Sales from "../pages/Sales";
+/////////////////////////////////////////////////////
+function convertPersianDigitsToEnglish(str) {
+  const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+  return str.replace(/[۰-۹]/g, (d) => persianDigits.indexOf(d));
+}
+///////////////////////////////////////////
 export default function AddSale({
-   addSaleModalSetting,
+  addSaleModalSetting,
   handlePageUpdate,
   authContext,
 }) {
   const [sale, setSale] = useState({
     userID: authContext.user,
-    distributedNumber:"",
+    distributedNumber: "",
     category: "",
     productID: "",
     stockSold: "",
@@ -19,79 +26,127 @@ export default function AddSale({
     saleAmount: "",
     totalSaleAmount: "",
     department: "",
-    saleDate: "",
-    description:"",
-    
+    saleDate: null,
+    description: "",
   });
- const [inventoryItems, setInventoryItems] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [productName, setProductName] = useState("");
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
-//در یافت دیتا از موجودی
-//////////////////////////////////////////////////////////
-useEffect(() => {
-  fetch("http://localhost:4000/api/inventory/")
-    .then((res) => res.json())
-    .then((data) => setInventoryItems(data))
-    .catch((err) => console.error("❌ خطا در دریافت موجودی:", err));
-}, []);
 
+  //در یافت دیتا از موجودی
+  //////////////////////////////////////////////////////////
+  useEffect(() => {
+    if (authContext.user && authContext.user._id) {
+      console.log("📦 درخواست موجودی برای یوزر:", authContext.user._id);
+      fetch(`http://localhost:4000/api/inventory/get/${authContext.user._id}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          console.log("✅ موجودی دریافت‌شده:", data);
+          setInventoryItems(data);
+        })
+        .catch((err) => {
+          console.error("❌ خطا در دریافت موجودی:", err);
+        });
+    }
+  }, [authContext.user]); // 👈 اضافه کردن وابستگی
 
-//////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////
 
+  // محاسبه خودکار مجموع مبلغ خرید
 
-   // محاسبه خودکار مجموع مبلغ خرید
+  useEffect(() => {
+    const quantity = parseFloat(sale.stockSold);
+    const unitPrice = parseFloat(sale.saleAmount);
 
-
-useEffect(() => {
-  const quantity = parseFloat(sale.stockSold);
-  const unitPrice = parseFloat(sale.saleAmount);
-  
-  if (!isNaN(quantity) && !isNaN(unitPrice)) {
-    const total = quantity * unitPrice;
-    setSale((prev) => ({
-      ...prev,
-      totalSaleAmount: total.toFixed(2),
-    }));
-  }
-}, [sale.stockSold, sale.saleAmount]);
-
+    if (!isNaN(quantity) && !isNaN(unitPrice)) {
+      const total = quantity * unitPrice;
+      setSale((prev) => ({
+        ...prev,
+        totalSaleAmount: total.toFixed(2),
+      }));
+    }
+  }, [sale.stockSold, sale.saleAmount]);
 
   // Handling Input Change for input field
-    const handleInputChange = (name, value) => {
+  const handleInputChange = (name, value) => {
     setSale((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-  ///////////////////////////////////////////////
-    // تنظیم category و unit به‌صورت خودکار بعد از انتخاب جنس
-  const handleProductChange = (productId) => {
-    const selected = inventoryItems.find((item) => item.productId === productId);
+
+  //////////////////////////////بعدا اضافه شوده مربوط سرچ میشود/////
+  const handleProductChangeByName = (name) => {
+    setProductName(name);
+    const selected = inventoryItems.find((item) => item.name === name);
 
     if (selected) {
       setSale((prev) => ({
         ...prev,
-        productID: productId,
+        productID: selected.productId,
         unit: selected.unit,
         category: selected.category,
       }));
     } else {
       setSale((prev) => ({
         ...prev,
-        productID: productId,
+        productID: "",
+        unit: "",
+        category: "",
       }));
     }
   };
 
-  //////////////////////////////////////////////////////////////
-
+  /////////////////////////////////////////////////////////////
   const addSale = () => {
+    //////////////////////////////
+    // 👇 بررسی اینکه تمام فیلدهای ضروری پر هستند
+    const requiredFields = {
+      userID: "شناسه کاربر",
+      distributedNumber: "شماره توزیع",
+      category: "دسته‌بندی",
+      productID: "شناسه محصول",
+      stockSold: "مقدار فروش رفته",
+      unit: "واحد",
+      saleAmount: "مبلغ فروش",
+      totalSaleAmount: "مبلغ کل فروش",
+      department: "دپارتمان",
+      saleDate: "تاریخ فروش",
+      description: "توضیحات",
+    };
+
+    for (let field in requiredFields) {
+      if (
+        sale[field] === "" ||
+        sale[field] === null ||
+        sale[field] === undefined
+      ) {
+        alert(`فیلد "${requiredFields[field]}" خالی است. لطفاً آن را پر کنید.`);
+        return;
+      }
+    }
+    /////////////////////////////
+    // تبدیل تاریخ به رشته اگر وجود دارد
+    const saleDateString = sale.saleDate
+      ? convertPersianDigitsToEnglish(sale.saleDate.format("YYYY/MM/DD"))
+      : null;
+    const saleDataToSend = {
+      ...sale,
+      saleDate: saleDateString,
+    };
+
     fetch("http://localhost:4000/api/sales/add", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify(sale),
+      body: JSON.stringify(saleDataToSend),
     })
       .then((res) => {
         if (!res.ok) {
@@ -117,8 +172,8 @@ useEffect(() => {
         alert("❌ خطا در ثبت توزیع: " + err.message);
       });
   };
-//////////////////////////////////////////////////////
 
+  //////////////////////////////////////////////////////
 
   return (
     // Modal
@@ -161,19 +216,18 @@ useEffect(() => {
                         aria-hidden="true"
                       />
                     </div>
-                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left ">
+                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-right ">
                       <Dialog.Title
                         as="h3"
-                        className="text-lg  py-4 font-semibold leading-6 text-gray-900 "
+                        className="text-right text-xl font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4"
                       >
-                        افزودن
+                        افزودن توزیع
                       </Dialog.Title>
-                      <form action="#">
-                        <div className="grid gap-4 mb-4 sm:grid-cols-2">
-                        
 
-                            {/* انتخاب نمبر توزیغ */}
-                           <div>
+                      <form action="#">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                          {/* انتخاب نمبر توزیغ */}
+                          <div>
                             <label
                               htmlFor="disterbutedNumber"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
@@ -184,7 +238,6 @@ useEffect(() => {
                               type="number"
                               name="distributedNumber"
                               id="distributedNumber"
-                              
                               value={sale.distributedNumber}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
@@ -194,8 +247,7 @@ useEffect(() => {
                             />
                           </div>
 
-
-                           {/* انتخاب کتگوری */}
+                          {/* انتخاب کتگوری */}
                           <div>
                             <label
                               htmlFor="category"
@@ -215,33 +267,33 @@ useEffect(() => {
                               <option value="">انتخاب کتگوری</option>
                               <option value="قرطاسیه">قرطاسیه</option>
                               <option value="روغنیات">روغنیات</option>
-                              <option value="اجناس حفظ و مراقبت">اجناس حفظ و مراقبت</option>
+                              <option value="اجناس حفظ و مراقبت">
+                                اجناس حفظ و مراقبت
+                              </option>
                               <option value="اجناس دفتری">اجناس دفتری</option>
                               <option value="تجهیزات آیتی">تجهیزات آیتی</option>
                             </select>
                           </div>
 
-                          <div>
-                            <label
-                              htmlFor="productID"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right" >
-                              نام جنس
-                            </label>
-                              <select
-                    id="productID"
-                    name="productID"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                    onChange={(e) => handleProductChange(e.target.value)}
-                    value={sale.productID}
-                  >
-                    <option value=""> انتخاب جنس</option>
-                    {inventoryItems.map((item) => (
-                      <option key={item._id} value={item.productId}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
+                          <div className="mb-4">
+                            <input
+                              list="products"
+                              placeholder="جستجوی نام محصول..."
+                              value={productName}
+                              onChange={(e) =>
+                                handleProductChangeByName(e.target.value)
+                              }
+                              className="w-full p-2 border rounded"
+                            />
 
+                            <datalist id="products">
+                              {inventoryItems.map((item) => (
+                                <option
+                                  key={item.productId}
+                                  value={item.name}
+                                />
+                              ))}
+                            </datalist>
                           </div>
 
                           <div>
@@ -263,7 +315,7 @@ useEffect(() => {
                               placeholder="مقدار جنس را وارد کنید"
                             />
                           </div>
-                             <div>
+                          <div>
                             <label
                               htmlFor="unit"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
@@ -279,7 +331,7 @@ useEffect(() => {
                               }
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
                             >
-                              <option value="" >انتخاب واحد</option>
+                              <option value="">انتخاب واحد</option>
                               <option value="کیلوگرام">کیلوگرام</option>
                               <option value="لیتر">لیتر</option>
                               <option value="عدد">عدد</option>
@@ -312,7 +364,7 @@ useEffect(() => {
                               htmlFor="totalSaleAmount"
                               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right"
                             >
-                             قیمت فی واحد
+                              قیمت فی واحد
                             </label>
                             <input
                               type="number"
@@ -325,27 +377,8 @@ useEffect(() => {
                               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 text-right"
                               placeholder="قیمت فی واحد"
                             />
-                              </div>
-                              <div>
-                             <label
-                              htmlFor="totalSaleAmount"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-right"
-                            >
-                             قیمت مجموعی 
-                            </label>
-                            <input
-                              type="number"
-                              name="totalSaleAmount"
-                              id="price"
-                              value={sale.totalSaleAmount}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
-                              }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500  text-right"
-                              placeholder="قیمت مجموعی"
-                            />
                           </div>
-                            <div>
+                          <div>
                             <label
                               htmlFor="unit"
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
@@ -359,110 +392,164 @@ useEffect(() => {
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"  >
-                          
-     <option value="">انتخاب کنید</option>
+                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
+                            >
+                              <option value="">انتخاب کنید</option>
 
-    <optgroup label="پوهنځی انجنیری صنایع کیمیاوی">
-      <option value="تکنالوژی مواد عضوی">تکنالوژی مواد عضوی</option>
-      <option value="تکنالوژی مواد غیر عضوی">تکنالوژی مواد غیر عضوی</option>
-      <option value="تکنالوژی مواد غذایی">تکنالوژی مواد غذایی</option>
-      <option value="تکنالوژی پروسس فلزات">تکنالوژی پروسس فلزات</option>
-    </optgroup>
+                              <optgroup label="پوهنځی انجنیری صنایع کیمیاوی">
+                                <option value="تکنالوژی مواد عضوی">
+                                  تکنالوژی مواد عضوی
+                                </option>
+                                <option value="تکنالوژی مواد غیر عضوی">
+                                  تکنالوژی مواد غیر عضوی
+                                </option>
+                                <option value="تکنالوژی مواد غذایی">
+                                  تکنالوژی مواد غذایی
+                                </option>
+                                <option value="تکنالوژی پروسس فلزات">
+                                  تکنالوژی پروسس فلزات
+                                </option>
+                              </optgroup>
 
-    <optgroup label="پوهنځی ساختمانی">
-      <option value="ساختمان های صنعتی و مدنی">ساختمان های صنعتی و مدنی</option>
-      <option value="مهندسی">مهندسی</option>
-      <option value="شهر سازی">شهر سازی</option>
-       <option value="مدیریت و انجنیری ساختمان">مدیریت و انجنیری ساختمان</option>
-        <option value="رسم تخنیکی و هندسه ترسیمی">رسم تخنیکی و هندسه ترسیمی</option>
-  
-    </optgroup>
+                              <optgroup label="پوهنځی ساختمانی">
+                                <option value="ساختمان های صنعتی و مدنی">
+                                  ساختمان های صنعتی و مدنی
+                                </option>
+                                <option value="مهندسی">مهندسی</option>
+                                <option value="شهر سازی">شهر سازی</option>
+                                <option value="مدیریت و انجنیری ساختمان">
+                                  مدیریت و انجنیری ساختمان
+                                </option>
+                                <option value="رسم تخنیکی و هندسه ترسیمی">
+                                  رسم تخنیکی و هندسه ترسیمی
+                                </option>
+                              </optgroup>
 
-    <optgroup label="پوهنځی الکترومیخانیک">
-      <option value="انجنیری اتومیخانیک">انجنیری اتومیخانیک</option>
-      <option value="تامین برق موسسات صنعتی، شهرها و دهات">تامین برق موسسات صنعتی، شهرها و دهات</option>
-    </optgroup>
+                              <optgroup label="پوهنځی الکترومیخانیک">
+                                <option value="انجنیری اتومیخانیک">
+                                  انجنیری اتومیخانیک
+                                </option>
+                                <option value="تامین برق موسسات صنعتی، شهرها و دهات">
+                                  تامین برق موسسات صنعتی، شهرها و دهات
+                                </option>
+                              </optgroup>
 
-     <optgroup label="پوهنځی کمپیوترساینس">
-      <option value="سیستم های معلوماتی ">سیستم های معلوماتی </option>
-      <option value="انجنیری کمپیوتر">انجنیری کمپیوتر</option>
-      <option value="انجنیری شبکه ">انجنیری شبکه</option>
-    </optgroup>
-     <optgroup label="  پوهنځی جيولوجي ومعدن">
-      <option value=" انجنیری جیولوجی و اکشاف معادن"> انجنیری جیولوجی و اکشاف معادن</option>
-      <option value=" انجنیری معادن نفت و گاز"> انجنیری معادن نفت و گاز</option>
-      <option value=" انجنیری استخراج معادن مواد مفید جامد به طریقه برهنه"> انجنیری استخراج معادن مواد مفید جامد به طریقه برهنه</option>
-      <option value="انجنیری استخراج معادن مواد مفید جامد به طریقه زیرزمینی"> انجنیری استخراج معادن مواد مفید جامد به طریقه زیرزمینی</option>
-     <option value="جیولوجی انجنیری وهایدروجیولوجی">جیولوجی انجنیری وهایدروجیولوجی</option>
-    </optgroup>
+                              <optgroup label="پوهنځی کمپیوترساینس">
+                                <option value="سیستم های معلوماتی ">
+                                  سیستم های معلوماتی{" "}
+                                </option>
+                                <option value="انجنیری کمپیوتر">
+                                  انجنیری کمپیوتر
+                                </option>
+                                <option value="انجنیری شبکه ">
+                                  انجنیری شبکه
+                                </option>
+                              </optgroup>
+                              <optgroup label="  پوهنځی جيولوجي ومعدن">
+                                <option value=" انجنیری جیولوجی و اکشاف معادن">
+                                  {" "}
+                                  انجنیری جیولوجی و اکشاف معادن
+                                </option>
+                                <option value=" انجنیری معادن نفت و گاز">
+                                  {" "}
+                                  انجنیری معادن نفت و گاز
+                                </option>
+                                <option value=" انجنیری استخراج معادن مواد مفید جامد به طریقه برهنه">
+                                  {" "}
+                                  انجنیری استخراج معادن مواد مفید جامد به طریقه
+                                  برهنه
+                                </option>
+                                <option value="انجنیری استخراج معادن مواد مفید جامد به طریقه زیرزمینی">
+                                  {" "}
+                                  انجنیری استخراج معادن مواد مفید جامد به طریقه
+                                  زیرزمینی
+                                </option>
+                                <option value="جیولوجی انجنیری وهایدروجیولوجی">
+                                  جیولوجی انجنیری وهایدروجیولوجی
+                                </option>
+                              </optgroup>
 
-     <optgroup label="پوهنځی انجنیری آب و محیط زیست">
-      <option value="انجنیری ساختمان های آب">انجنیری ساختمان های آب</option>
-      <option value="آبرسانی و انجنیری محیط زیست">آبرسانی و انجنیری محیط زیست</option>
-     
-    </optgroup>
+                              <optgroup label="پوهنځی انجنیری آب و محیط زیست">
+                                <option value="انجنیری ساختمان های آب">
+                                  انجنیری ساختمان های آب
+                                </option>
+                                <option value="آبرسانی و انجنیری محیط زیست">
+                                  آبرسانی و انجنیری محیط زیست
+                                </option>
+                              </optgroup>
 
-     <optgroup label="پوهنځی انجنیری ساختمانهای ترانسپورتی">
-      <option value=" انجنیری ساختمان های ترانسپورتی">  انجنیری ساختمان های ترانسپورتی</option>
-      <option value="انجنیری راه آهن">انجنیری راه آهن</option>
-      
-    </optgroup>
+                              <optgroup label="پوهنځی انجنیری ساختمانهای ترانسپورتی">
+                                <option value=" انجنیری ساختمان های ترانسپورتی">
+                                  {" "}
+                                  انجنیری ساختمان های ترانسپورتی
+                                </option>
+                                <option value="انجنیری راه آهن">
+                                  انجنیری راه آهن
+                                </option>
+                              </optgroup>
 
-     <optgroup label="پوهنځی انجنیری جیوماتیک">
-      <option value="سیستم اطلاعات جغرافیایی و سنجش از دور">سیستم اطلاعات جغرافیایی و سنجش از دور</option>
-      <option value="دیپارتمنت کدستر ">دیپارتمنت کدستر </option>
-      <option value="دیپارتمنت جیودیزی "> دیپارتمنت جیودیزی </option>
-       <option value="دیپارتمنت جیودیزی انجنیری "> دیپارتمنت جیودیزی انجنیری </option>
-    </optgroup>
+                              <optgroup label="پوهنځی انجنیری جیوماتیک">
+                                <option value="سیستم اطلاعات جغرافیایی و سنجش از دور">
+                                  سیستم اطلاعات جغرافیایی و سنجش از دور
+                                </option>
+                                <option value="دیپارتمنت کدستر ">
+                                  دیپارتمنت کدستر{" "}
+                                </option>
+                                <option value="دیپارتمنت جیودیزی ">
+                                  {" "}
+                                  دیپارتمنت جیودیزی{" "}
+                                </option>
+                                <option value="دیپارتمنت جیودیزی انجنیری ">
+                                  {" "}
+                                  دیپارتمنت جیودیزی انجنیری{" "}
+                                </option>
+                              </optgroup>
 
-    <optgroup label=" دیپارتمنت های عمومی">
-      <option value="فزیک">فزیک</option>
-      <option value="ریاضی">ریاضی</option>
-      <option value="کیمیا">کیمیا</option>
-       <option value=" ثقافت"> ثقافت</option>
-    </optgroup>
-  </select>
-   </div>
+                              <optgroup label=" دیپارتمنت های عمومی">
+                                <option value="فزیک">فزیک</option>
+                                <option value="ریاضی">ریاضی</option>
+                                <option value="کیمیا">کیمیا</option>
+                                <option value=" ثقافت"> ثقافت</option>
+                              </optgroup>
+                            </select>
+                          </div>
 
                           <div className="h-fit w-fit">
-                            {/* <Datepicker
-                              onChange={handleChange}
-                              show={show}
-                              setShow={handleClose}
-                            /> */}
                             <label
                               className="block mb-2 text-sm font-medium text-gray-900 text-right"
                               htmlFor="salesDate"
                             >
                               تاریخ
                             </label>
-                             <input
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-                              type="date"
-                              id="saleDate"
-                              name="saleDate"
+                            <DatePicker
+                              calendar={persian}
+                              locale={persian_fa}
                               value={sale.saleDate}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
+                              onChange={(date) =>
+                                handleInputChange("saleDate", date)
                               }
-                            /> 
+                              format="YYYY/MM/DD"
+                              inputClass="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                              placeholder="تاریخ را انتخاب کنید"
+                            />
                           </div>
-                            {/* توضیحات */}
+                          {/* توضیحات */}
 
-                            
-
-                            <div className="sm:col-span-2 text-right">
-                            <label htmlFor="description" 
-                            className="block mb-2 text-sm font-medium text-gray-900">
+                          <div className="sm:col-span-2 text-right">
+                            <label
+                              htmlFor="description"
+                              className="block mb-2 text-sm font-medium text-gray-900"
+                            >
                               مشخصات جنس
                             </label>
                             <textarea
                               id="description"
                               name="description"
-                              rows="6"
+                              rows="4"
                               value={sale.description}
-                              onChange={(e) => handleInputChange(e.target.name, e.target.value)}
+                              onChange={(e) =>
+                                handleInputChange(e.target.name, e.target.value)
+                              }
                               className="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300"
                               placeholder="شرحی بنویسید..."
                               dir="rtl"
@@ -473,18 +560,19 @@ useEffect(() => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+
+                <div className="bg-gray-50 px-4 py-3 flex justify-end gap-3 rounded-b-lg shadow-inner">
                   <button
                     type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md transition duration-200 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     onClick={addSale}
                   >
-                    افزودن توزیع
+                    افزودن
                   </button>
                   <button
                     type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => addSaleModalSetting()}
+                    className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-2 text-sm font-semibold text-gray-700 shadow-sm transition duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                    onClick={addSaleModalSetting}
                     ref={cancelButtonRef}
                   >
                     لغو

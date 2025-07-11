@@ -2,6 +2,9 @@ import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 
 export default function UpdateProduct({
   updateProductData,
@@ -11,40 +14,41 @@ export default function UpdateProduct({
     _id,
     ticketserialnumber,
     date,
+    ProductDateShamsi,
     name,
     description,
     count,
     unit,
     priceperunit,
-    totleprice,
+    totalPrice,
     category,
   } = updateProductData;
   const [product, setProduct] = useState({
     productID: _id,
-    ticketserialnumber: ticketserialnumber,
-    date: date,
-    name: name,
-    description: description,
-    count: count,
-    unit: unit,
-    priceperunit: priceperunit,
-    totleprice: totleprice,
-    category: category,
+    ticketserialnumber,
+    date, // تاریخ میلادی یا شمسی؟ بهتر که شمسی برای نمایش و میلادی برای ارسال داشته باشی
+    ProductDateShamsi: ProductDateShamsi || date,
+    name,
+    description,
+    count,
+    unit,
+    priceperunit,
+    totalPrice,
+    category,
   });
 
   useEffect(() => {
     const count = parseFloat(product.count) || 0;
     const price = parseFloat(product.priceperunit) || 0;
     const calculatedTotal = count * price;
-    setProduct((prev) => ({ ...prev, totleprice: calculatedTotal }));
+    setProduct((prev) => ({ ...prev, totalPrice: calculatedTotal }));
   }, [product.count, product.priceperunit]);
 
   const [open, setOpen] = useState(true);
   const cancelButtonRef = useRef(null);
 
   const handleInputChange = (key, value) => {
-    console.log(key);
-    setProduct({ ...product, [key]: value });
+    setProduct((prev) => ({ ...prev, [key]: value }));
   };
 
   const updateProduct = () => {
@@ -56,8 +60,9 @@ export default function UpdateProduct({
       body: JSON.stringify(product),
     })
       .then((result) => {
-        alert("جنس اپدیت شد");
+        alert("جنس آپدیت شد");
         setOpen(false);
+        updateModalSetting(false); // اگر می‌خواهی مودال بسته شود
       })
       .catch((err) => console.log(err));
   };
@@ -147,15 +152,23 @@ export default function UpdateProduct({
                             >
                               تاریخ
                             </label>
-                            <input
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-                              type="Date"
-                              id="date"
-                              name="date"
-                              value={product.date}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
-                              }
+                            <DatePicker
+                              calendar={persian}
+                              locale={persian_fa}
+                              value={product.ProductDateShamsi}
+                              onChange={(dateObject) => {
+                                // dateObject یک شیء تاریخ است، پس باید آن را به رشته تبدیل کنیم
+                                const formattedDate =
+                                  dateObject.format("YYYY/MM/DD");
+                                handleInputChange(
+                                  "ProductDateShamsi",
+                                  formattedDate
+                                );
+                                // در صورت نیاز می‌توان تاریخ میلادی را نیز ذخیره کرد
+                              }}
+                              format="YYYY/MM/DD"
+                              inputClass="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                              placeholder="تاریخ را انتخاب کنید"
                             />
                           </div>
                           {/* نام جنس */}
@@ -291,7 +304,7 @@ export default function UpdateProduct({
                               type="number"
                               name="totleprice"
                               id="totleprice"
-                              value={product.totleprice}
+                              value={product.totalPrice}
                               onChange={(e) =>
                                 handleInputChange(e.target.name, e.target.value)
                               }

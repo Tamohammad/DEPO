@@ -1,48 +1,36 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import AddProduct from "../components/AddProduct";
 import UpdateProduct from "../components/UpdateProduct";
 import AuthContext from "../AuthContext";
 import moment from "moment-jalaali";
+moment.loadPersian({ dialect: "persian-modern", usePersianDigits: true });
 
 function Inventory() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateProduct, setUpdateProduct] = useState([]);
   const [products, setAllProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState();
+  const [searchTerm, setSearchTerm] = useState("");
   const [updatePage, setUpdatePage] = useState(true);
-  const [stores, setAllStores] = useState([]);
   const [searchWarning, setSearchWarning] = useState("");
-  const [filteredSales, setFilteredSales] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   const authContext = useContext(AuthContext);
-  console.log("====================================");
-  console.log(authContext);
-  console.log("====================================");
 
-  // گرفتن تمام محصولات
+  useEffect(() => {
+    if (authContext.user) {
+      fetchProductsData();
+    }
+  }, [updatePage]);
+
   const fetchProductsData = () => {
-    fetch(`http://localhost:4000/api/product/get/${authContext.user}`)
+    fetch(`http://localhost:4000/api/product/get/${authContext.user._id}`)
       .then((response) => response.json())
-      .then((data) => {
-        setAllProducts(data);
-      })
+      .then((data) => setAllProducts(data))
       .catch((err) => console.log(err));
   };
 
-  // گرفتن تمام فروشگاه‌ها
-  const fetchSalesData = () => {
-    fetch(`http://localhost:4000/api/store/get/${authContext.user}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAllStores(data);
-      });
-  };
-
-  // فیلتر بر اساس کتگوری
   useEffect(() => {
     if (selectedCategory === "all") {
       setFilteredProducts(products);
@@ -56,10 +44,8 @@ function Inventory() {
 
   useEffect(() => {
     fetchProductsData();
-    fetchSalesData();
   }, [updatePage]);
 
-  // جستجوی محصولات
   const fetchSearchData = () => {
     fetch(`http://localhost:4000/api/product/search?searchTerm=${searchTerm}`)
       .then((response) => response.json())
@@ -78,48 +64,45 @@ function Inventory() {
       });
   };
 
-  {
-    /* Handle Search Term*/
-  }
-  const handleSearchTerm = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchSearchData();
+    }, 300);
 
-  {
-    /* Modal for Product ADD*/
-  }
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
+
   const addProductModalSetting = () => {
     setShowProductModal(!showProductModal);
   };
 
-  {
-    /*Modal for Product UPDATE*/
-  }
   const updateProductModalSetting = (selectedProductData) => {
-    console.log("Clicked: edit");
     setUpdateProduct(selectedProductData);
     setShowUpdateModal(!showUpdateModal);
   };
 
-  // حذف جنس
   const deleteItem = (id) => {
     fetch(`http://localhost:4000/api/product/delete/${id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setUpdatePage(!updatePage);
+      .then((response) => {
+        if (!response.ok) throw new Error("حذف موفق نبود");
+        return response.json();
+      })
+      .then(() => {
+        alert("محصول با موفقیت حذف شد ✅");
+        setUpdatePage((prev) => !prev);
+      })
+      .catch((error) => {
+        alert("خطا در حذف محصول ❌: " + error.message);
       });
   };
 
-  {
-    /* Handle Page Update*/
-  }
   const handlePageUpdate = () => {
     setUpdatePage(!updatePage);
   };
 
   return (
-    <div className="col-span-12 lg:col-span-10  flex justify-center">
-      <div className=" flex flex-col gap-5 w-11/12">
+    <div className="col-span-12 lg:col-span-10 flex justify-center mt-4">
+      <div className="flex flex-col gap-5 w-full px-2 sm:px-4">
         {showProductModal && (
           <AddProduct
             addProductModalSetting={addProductModalSetting}
@@ -133,47 +116,41 @@ function Inventory() {
           />
         )}
 
-        {/* Table  */}
         <div className="overflow-x-auto rounded-lg border bg-white border-gray-200">
-          <div className="flex flex-wrap justify-between items-center gap-4 pt-6 pb-4 px-4 bg-white rounded-xl shadow-md">
-            {/* Search box */}
-            <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 shadow-sm transition duration-200 focus-within:ring-2 focus-within:ring-blue-500">
+          <div className="flex flex-wrap justify-between items-center gap-4 pt-5 pb-3 px-4 bg-white rounded-xl shadow-sm">
+            {/* عنوان صفحه */}
+            <span className="text-lg font-bold text-gray-800">
+              مدیریت اجناس
+            </span>
+
+            {/* جستجو */}
+            <div className="flex items-center border-2 border-gray-300 rounded-md px-3 py-1 bg-gray-50 w-full max-w-xs">
               <img
                 alt="search-icon"
-                className="w-5 h-5 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                className="w-5 h-5"
                 src={require("../assets/search-icon.png")}
                 onClick={fetchSearchData}
               />
               <input
                 type="text"
-                placeholder="جستجو کنید..."
+                placeholder="جستجو کنید"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") fetchSearchData();
                 }}
-                className="bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400 flex-1"
+                className="ml-2 flex-grow bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
               />
             </div>
 
-            {/* Warning message */}
-            {searchWarning && (
-              <p className="text-red-500 text-sm font-medium transition-opacity duration-300 animate-pulse">
-                {searchWarning}
-              </p>
-            )}
-
-            {/* Category selector */}
-            <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-              <label className="text-gray-700 font-medium text-sm whitespace-nowrap">
-                انتخاب کتگوری:
-              </label>
+            {/* فیلتر کتگوری */}
+            <div className="flex items-center border-2 border-gray-300 rounded-md px-3 py-1 bg-gray-50 w-48">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="bg-white border border-gray-300 text-sm text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="bg-gray-50 border-none outline-none text-sm w-full text-gray-700"
               >
-                <option value="">انتخاب کتگوری</option>
+                <option value="all">همه کتگوری‌ها</option>
                 <option value="قرطاسیه">قرطاسیه</option>
                 <option value="روغنیات">روغنیات</option>
                 <option value="اجناس حفظ و مراقبت">اجناس حفظ و مراقبت</option>
@@ -182,81 +159,107 @@ function Inventory() {
               </select>
             </div>
 
-            {/* Add button */}
-            <div>
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg text-sm shadow transition duration-200"
-                onClick={() => setShowProductModal(true)}
-              >
-                افزودن جنس
-              </button>
-            </div>
+            {/* هشدار جستجو در صورت نیاز */}
+            {searchWarning && (
+              <p className="text-sm text-red-600 animate-pulse w-full sm:w-auto mt-2">
+                ⚠️ {searchWarning}
+              </p>
+            )}
+
+            {/* دکمه افزودن جنس */}
+            <button
+              onClick={() => setShowProductModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg text-sm shadow transition-colors duration-200"
+            >
+              افزودن جنس
+            </button>
           </div>
 
-          <table className="min-w-full divide-y-2 divide-gray-200 text-sm">
-            <thead>
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left">نمبر تکیت</th>
-                <th className="px-4 py-2 text-left">تاریخ</th>
-                <th className="px-4 py-2 text-left">مشخصات جنس</th>
-                <th className="px-4 py-2 text-left">تعداد</th>
-                <th className="px-4 py-2 text-left">واحد</th>
-                <th className="px-4 py-2 text-left">قیمت فیات</th>
-                <th className="px-4 py-2 text-left">قیمت مجموعی</th>
-                <th className="px-4 py-2 text-left">کتگوری</th>
-                <th className="px-4 py-2 text-center">عملیات</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  نمبر تکت
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  تاریخ
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  نام
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  مشخصات جنس
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  تعداد
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  واحد
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  قیمت فیات
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  قیمت مجموعی
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  کتگوری
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  عملیات
+                </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-200">
-              {filteredProducts.map((element) => {
-                const entryDate =
-                  element.entries &&
-                  element.entries[0] &&
-                  element.entries[0].date;
-                const formattedDate = entryDate
-                  ? moment(entryDate).format("jYYYY/jMM/jDD") // شمسی
-                  : "بدون تاریخ";
-
-                console.log("تاریخ دریافتی:", entryDate); // ✅ لاگ بررسی تاریخ
-
-                return (
-                  <tr key={element._id}>
-                    <td className="px-4 py-2 border">
-                      {element.ticketserialnumber}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      {formattedDate}
-                    </td>
-                    <td className="px-4 py-2 border">{element.description}</td>
-                    <td className="px-4 py-2 border">{element.count}</td>
-                    <td className="px-4 py-2 border">{element.unit}</td>
-                    <td className="px-4 py-2 border">{element.priceperunit}</td>
-                    <td className="px-4 py-2 border">{element.totleprice}</td>
-                    <td className="px-4 py-2 border">{element.category}</td>
-                    <td className="px-4 py-2 border">
-                      <div className="flex gap-3 justify-center items-center">
-                        <button
-                          onClick={() => {
-                            setUpdateProduct(element);
-                            setShowUpdateModal(true);
-                          }}
-                          className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition"
-                          title="ویرایش"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => deleteItem(element._id)}
-                          className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition"
-                          title="حذف"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+              {filteredProducts.map((element) => (
+                <tr
+                  key={element._id}
+                  className="hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <td className="px-4 py-2 border text-center">
+                    {element.ticketserialnumber}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.ProductDateShamsi}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.name}
+                  </td>
+                  <td className="px-4 py-2 border text-right">
+                    {element.description}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.count}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.unit}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.priceperunit}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.totalPrice}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    {element.category}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    <div className="flex gap-2 justify-center items-center">
+                      <button
+                        onClick={() => {
+                          setUpdateProduct(element);
+                          setShowUpdateModal(true);
+                        }}
+                        className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors duration-200"
+                        title="ویرایش"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

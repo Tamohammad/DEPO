@@ -21,6 +21,10 @@ function Register() {
 
   // Register User
   const registerUser = () => {
+    if (!form.imageUrl) {
+      alert("لطفاً ابتدا تصویر پروفایل را بارگذاری کنید.");
+      return;
+    }
     fetch("http://localhost:4000/api/register", {
       method: "POST",
       headers: {
@@ -30,8 +34,7 @@ function Register() {
     })
       .then((result) => {
         alert("با موفقیت ثبت شدید، اکنون با جزئیات خود وارد شوید");
-        navigate('/login')
-        
+        navigate("/login");
       })
       .catch((err) => console.log(err));
   };
@@ -49,16 +52,17 @@ function Register() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setForm({ ...form, imageUrl: data.url });
+        setForm({ ...form, imageUrl: data.secure_url });
         alert("تصویر با موفقیت بارگذاری شد");
       })
+
       .catch((error) => console.log(error));
   };
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
-  }
+    registerUser();
+  };
 
   return (
     <>
@@ -71,7 +75,7 @@ function Register() {
               alt="شرکت شما"
             />
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            حساب کاربری خود را ثبت کنید
+              حساب کاربری خود را ثبت کنید
             </h2>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -156,35 +160,36 @@ function Register() {
                 </label>
               </div>
 
-              <div className="text-sm">
-                <span
-                  className="font-medium text-indigo-600 hover:text-indigo-500"
+              {/* لینک فراموشی رمز عبور */}
+              <div className="text-sm text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-indigo-600 hover:text-indigo-500"
                 >
-                  رمز عبور خود را فراموش کرده‌اید؟
-                </span>
+                  رمز عبور را فراموش کرده‌اید؟
+                </Link>
               </div>
             </div>
 
             <div>
               <button
                 type="submit"
-                className="group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={registerUser}
+                disabled={!form.imageUrl}
+                className={`group relative flex w-full justify-center rounded-md py-2 px-3 text-sm font-semibold text-white 
+        ${
+          form.imageUrl
+            ? "bg-indigo-600 hover:bg-indigo-500"
+            : "bg-gray-400 cursor-not-allowed"
+        }
+        `}
               >
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  {/* <LockClosedIcon
-                      className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-                      aria-hidden="true"
-                    /> */}
-                </span>
                 ثبت‌
               </button>
+
               <p className="mt-2 text-center text-sm text-gray-600">
-              یا{" "}
-                <span
-                  className="font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                 قبلاً حساب کاربری دارید، لطفاً
+                یا{" "}
+                <span className="font-medium text-indigo-600 hover:text-indigo-500">
+                  قبلاً حساب کاربری دارید، لطفاً
                   <Link to="/login"> اکنون وارد شوید </Link>
                 </span>
               </p>

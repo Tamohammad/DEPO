@@ -1,12 +1,8 @@
-
-<<<<<<< HEAD
-=======
 const mongoose = require("mongoose");
 
->>>>>>> cc37c6d ( i added sales page completly)
 const ProductSchema = new mongoose.Schema(
   {
-    userId: {
+    userID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users", // مطمئن شو مدل کاربر با همین نام تعریف شده
       required: true,
@@ -16,8 +12,12 @@ const ProductSchema = new mongoose.Schema(
       required: true,
     },
     date: {
+      type: Date,
+      require: false,
+    },
+    ProductDateShamsi: {
       type: String,
-      default: Date.now,
+      required: true,
     },
     name: {
       type: String,

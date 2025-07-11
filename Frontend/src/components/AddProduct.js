@@ -2,19 +2,21 @@ import { Fragment, useContext, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import AuthContext from "../AuthContext";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 
 export default function AddProduct({
   addProductModalSetting,
   handlePageUpdate,
 }) {
   const authContext = useContext(AuthContext);
-  const today = new Date().toISOString().split("T")[0];
   const cancelButtonRef = useRef(null);
 
   const [product, setProduct] = useState({
-    userId: authContext.user,
+    userID: authContext.user,
     ticketserialnumber: "",
-    date: today,
+    date: null,
     name: "",
     description: "",
     count: "",
@@ -36,6 +38,10 @@ export default function AddProduct({
   const addProduct = async () => {
     const parsedCount = parseFloat(product.count);
     const parsedPrice = parseFloat(product.priceperunit);
+
+    const productDateString = product.date
+      ? product.date.format("YYYY/MM/DD")
+      : null;
 
     if (
       !product.ticketserialnumber ||
@@ -60,9 +66,10 @@ export default function AddProduct({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: product.userId,
+          userID: product.userID,
           ticketserialnumber: Number(product.ticketserialnumber),
-          date: product.date,
+          date: productDateString,
+          ProductDateShamsi: productDateString,
           name: product.name.trim(),
           description: product.description.trim(),
           count: parsedCount,
@@ -126,10 +133,10 @@ export default function AddProduct({
                         aria-hidden="true"
                       />
                     </div>
-                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <div className="mt-3 sm:mt-0 sm:ml-4 w-full">
                       <Dialog.Title
                         as="h3"
-                        className="text-right text-lg font-semibold leading-6 text-gray-900"
+                        className="text-right text-xl font-bold leading-6 text-gray-800 border-b pb-2 mb-4"
                       >
                         اضافه کردن جنس
                       </Dialog.Title>
@@ -166,15 +173,16 @@ export default function AddProduct({
                             >
                               تاریخ
                             </label>
-                            <input
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full"
-                              type="text"
-                              id="date"
-                              name="date"
+                            <DatePicker
+                              calendar={persian}
+                              locale={persian_fa}
                               value={product.date}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
+                              onChange={(date) =>
+                                handleInputChange("date", date)
                               }
+                              format="YYYY/MM/DD"
+                              inputClass="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                              placeholder="تاریخ را انتخاب کنید"
                             />
                           </div>
 
@@ -299,25 +307,6 @@ export default function AddProduct({
                               placeholder="قیمت فی واحد را وارد..."
                             />
                           </div>
-                          <div className="text-right">
-                            <label
-                              htmlFor="quantity"
-                              className="block mb-1 text-sm font-medium text-gray-900"
-                            >
-                              قیمت مجموعی
-                            </label>
-                            <input
-                              type="number"
-                              name="totalPrice"
-                              id="totalPrice"
-                              value={product.totalPrice}
-                              onChange={(e) =>
-                                handleInputChange(e.target.name, e.target.value)
-                              }
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                              placeholder="قیمت مجموعی را وارد..."
-                            />
-                          </div>
                           <div>
                             <label
                               htmlFor="category"
@@ -341,7 +330,7 @@ export default function AddProduct({
                                 اجناس حفظ و مراقبت
                               </option>
                               <option value="اجناس دفتری">اجناس دفتری</option>
-                              <option value=" تجهیزات آی تی">
+                              <option value="تجهیزات آی تی">
                                 {" "}
                                 تجهیزات آی تی{" "}
                               </option>
@@ -352,21 +341,21 @@ export default function AddProduct({
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <div className="bg-gray-50 px-4 py-3 flex justify-end gap-3 rounded-b-md shadow-inner">
                   <button
                     type="button"
                     onClick={addProduct}
-                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md transition duration-200 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
-                    اضافه کردن جنس
+                    افزودن
                   </button>
                   <button
                     type="button"
                     onClick={addProductModalSetting}
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                    className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-2 text-sm font-semibold text-gray-700 shadow-sm transition duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300"
                     ref={cancelButtonRef}
                   >
-                    لغو کردن
+                    لغو
                   </button>
                 </div>
               </Dialog.Panel>

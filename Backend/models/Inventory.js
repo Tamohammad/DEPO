@@ -1,8 +1,12 @@
-
 const mongoose = require("mongoose");
 
 const InventorySchema = new mongoose.Schema(
   {
+    userID: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "users",
+    },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",

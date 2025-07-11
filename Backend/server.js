@@ -2,11 +2,14 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const { main } = require("./models/index");
-const productRoute = require("./router/product").default;
-const storeRoute = require("./router/store");
+const productRoute = require("./router/product");
 const purchaseRoute = require("./router/purchase");
 const salesRoute = require("./router/sales");
 const inventoryRoutes = require("./router/inventory");
+const userRoute = require("./router/user");
+const reportsRoute = require("./router/reports");
+// const inventoryRoute = require("./router/inventory");
+// const inventoryRoute = require("./router/inventoryRoutes");
 
 const cors = require("cors");
 const User = require("./models/users");
@@ -18,9 +21,6 @@ main();
 app.use(express.json());
 app.use(cors());
 
-// Store API
-app.use("/api/store", storeRoute);
-
 // Products API
 app.use("/api/product", productRoute);
 
@@ -31,6 +31,10 @@ app.use("/api/purchase", purchaseRoute);
 app.use("/api/sales", salesRoute);
 //inventory API
 app.use("/api/inventory", inventoryRoutes);
+// users API
+app.use("/api/", userRoute);
+// reports
+app.use("/api", reportsRoute);
 
 // ------------- Signin --------------
 let userAuthCheck;
@@ -87,7 +91,44 @@ app.get("/testget", async (req, res) => {
   const result = await Product.findOne({ _id: "6429979b2e5434138eda1564" });
   res.json(result);
 });
+//////////////////////////بخش بازیابی رمز//////////////////
+// تأیید شماره تماس
+app.post("/api/users/verify-phone", async (req, res) => {
+  const { phone } = req.body;
 
+  try {
+    const user = await User.findOne({ phoneNumber: phone });
+    if (!user) {
+      return res.status(404).json({ message: "کاربر یافت نشد" });
+    }
+    res.json({ message: "شماره تایید شد" });
+  } catch (error) {
+    console.error("خطا در بررسی شماره:", error);
+    res.status(500).json({ message: "خطا در سرور" });
+  }
+});
+
+// تنظیم رمز عبور جدید (بدون انکریپشن)
+app.post("/api/users/reset-password", async (req, res) => {
+  const { phone, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ phoneNumber: phone });
+    if (!user) {
+      return res.status(404).json({ message: "کاربر یافت نشد" });
+    }
+
+    // رمز عبور بدون رمزنگاری
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: "رمز عبور جدید با موفقیت تنظیم شد" });
+  } catch (error) {
+    console.error("خطا در تنظیم رمز:", error);
+    res.status(500).json({ message: "خطا در سرور" });
+  }
+});
+/////////////////////////////////
 // Here we are listening to the server
 app.listen(PORT, () => {
   console.log("I am live again");
