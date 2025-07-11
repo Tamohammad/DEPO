@@ -27,8 +27,13 @@ function Inventory() {
   const fetchProductsData = () => {
     fetch(`http://localhost:4000/api/product/get/${authContext.user._id}`)
       .then((response) => response.json())
-      .then((data) => setAllProducts(data))
-      .catch((err) => console.log(err));
+      .then((data) =>
+  setAllProducts(
+    data.sort(
+      (a, b) => new Date(b.date || b.ProductDateShamsi) - new Date(a.date || a.ProductDateShamsi)
+    )
+  )
+)
   };
 
   useEffect(() => {
